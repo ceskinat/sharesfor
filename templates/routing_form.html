@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/style.css') }}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<script type="text/javascript">
+/*    function filterFunct() {
+        var fd = new FormData();
+        fd.append("tag", $("#tag").val());
+        
+        $.ajax({
+            type: "POST",
+            url: "/obj_list",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function(result){
+                 $("div.obj-list").html(result)
+                
+            }
+        });
+    };
+*/
+
+    function filterFunct(divId, inpId) {
+    /* displays the account list on a given div, query performed on data typed on given inp */
+        var fd = new FormData();
+        fd.append("name", $("#" + inpId).val());
+        
+        $.ajax({
+            type: "POST",
+            url: "/obj_list",
+            data: fd,
+            processData: false,
+            contentType: false,
+             success: function(result){
+                 $("#" + divId).html(result)
+                
+            }
+        });
+    };
+    
+    function selectTag() {
+        $("#tagname").val($(event.target).text());
+        $("#tagid").val($(event.target).val());
+        $("#tag-submit").focus()
+            
+    };
+    
+    function selectObj() {
+        $("#tag").val($(event.target).text())
+    }
+    function displaySlcts() {
+        $("#aud-selectors").toggle()
+        if ($("#aud-selectors").css("display") === "none"){
+            $("#toggle-aud-slct").text("Kişi Ekle/Çıkar")
+        }
+        else {
+            $("#toggle-aud-slct").text("Kapat")
+        }
+    }
+    
+    function displaySlcts() {
+        AddRm = "{{ToggleAddRmRcpt}}"
+        Close = "{{CloseAddRm}}"
+        $("#aud-selectors").toggle()
+        if ($("#aud-selectors").css("display") === "none"){
+//            $("#toggle-aud-slct").text("Kişi Ekle/Çıkar")
+            $("#toggle-aud-slct").text(AddRm)
+        }
+        else {
+            $("#toggle-aud-slct").text(Close)
+        }
+    }
+    function displaySlcts_tags() {
+        AddRm = "{{ToggleAddRmTags}}"
+        Close = "{{CloseAddRm}}"
+        $("#tag-selectors").toggle()
+        if ($("#tag-selectors").css("display") === "none"){
+            $("#toggle-tag-slct").text(AddRm)
+        }
+        else {
+            $("#toggle-tag-slct").text(Close)
+        }
+    }
+
+</script>
+
+   <div class="container">
+<!--
+    <div class='jumbotron akvaryum p-4'>
+        <h1>akvaryum</h1>
+-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<!--
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+-->
+    <script type="text/javascript">
+        var socket = io();
+        
+        socket.on('connect', function() {
+            socket.emit('join', {room: $("input[name='thread_id']").val()});
+            console.log("Joined room: " + $("input[name='thread_id']").val());
+            });
+
+        socket.on("refresh", function() {
+            let addr = "/routing_form?otype=" + $("input[name='otype']").val() + "&oid=" + 
+                        $("input[name='oid']").val() + "&thread_id=" + $("input[name='thread_id']").val();
+            location.href = addr;
+        });
+    </script>
+    <div class='jumbotron collaborations bg-light p-4'>
+        <h3>{{TopTitle}}</h3>
+        <div class="container container-routing mt-3  pb-4">
+            <button type="button" class="btn-close close text-right" onclick="window.open('', '_self', ''); window.close();">x</button>
+            <br>
+<!--
+            <h4 class="text-center">Yazışmalar </h4>
+<!--
+            <form id="message-add" class="form contact-form" action="/routing_form" method="POST"></form>
+            <form id="aud-add" action="/add_audience" method="POST"></form>
+
+                <input type="hidden" name="otype" value={{otype}}>
+                <input type="hidden" name="oid" value={{oid}}>
+<!-- 
+                <input type="hidden" name="thread_id" value={{thread_id}}
+-->
+            {{ objroutings | safe }}
+
+<!--
+            </form>
+-->
+        </div>
+    </div>
+    </div>
+
+
