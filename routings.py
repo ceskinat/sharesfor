@@ -11,7 +11,7 @@ Created on Tue Feb  1 07:08:59 2022
 # configurations = json.load(f)
 
 from sampleintfcs import object_name, all_users
-from config import LANG, MONGO_CONN_STRING, EMAIL_SENDER_ACC, EMAIL_SENDER_PWD, EMAIL_INTEGRATED, MODAL_DISPLAY
+from config import LANG, MONGO_CONN_STRING, EMAIL_SENDER_ACC, EMAIL_SENDER_PWD, EMAIL_INTEGRATED, MODAL_DISPLAY, S4S4_BASE
 
 from datetime import datetime
 
@@ -101,7 +101,7 @@ def display_routing(otype, oid, thread):
 
         def tag_add_section():
             body = "<div class='m-2'>"
-            body += '<form id="tag-add" action="/add_tag" method="POST">'
+            body += '<form id="tag-add" action="' + S4S4_BASE + '/add_tag" method="POST">'
             body += hidden_inputs()            
             # body += "<div class='input-group'>"
             body += "<div class='input-group-append'>"
@@ -121,7 +121,7 @@ def display_routing(otype, oid, thread):
 
         def tag_del_section():
             body = "<div class='m-2'>"
-            body += '<form id="tag-del" action="/del_tag" method="POST">'
+            body += '<form id="tag-del" action="' + S4S4_BASE + '/del_tag" method="POST">'
             body += hidden_inputs()            
             body += "<div class='input-group-append'>"
             body += "<select name='slct-del-tag' id='slct-del-tag' class='form-control text-sm'>"
@@ -143,7 +143,7 @@ def display_routing(otype, oid, thread):
 
         """ main part for tag_section """
         body = "<div class='tag-display aud-selector p1 pl-3'>"
-        body += "<form id='tag-add' action='add_tag' method= 'POST'>"
+        body += "<form id='tag-add' action='" + S4S4_BASE + "/add_tag' method= 'POST'>"
         
         body += "<div class='row'>"
         body += "<div class='col-xl-2'>"
@@ -179,7 +179,7 @@ def display_routing(otype, oid, thread):
                 
         def aud_add():
             body = "<div class='m-2'>"
-            body += '<form id="aud-add" action="/add_audience" method="POST">'
+            body += '<form id="aud-add" action="' + S4S4_BASE + '/add_audience" method="POST">'
             body += hidden_inputs()            
             body += "<div class='input-group'>"
             body += "<select name='slct-aud' id='slct-aud' class='form-control text-sm'>"
@@ -210,7 +210,7 @@ def display_routing(otype, oid, thread):
 
         def aud_del():
             body = "<div class='m-2'>"
-            body += '<form id="aud-del" action="/del_audience" method="POST">'
+            body += '<form id="aud-del" action="' + S4S4_BASE + '/del_audience" method="POST">'
             body += hidden_inputs()            
             body += "<div class='input-group'>"
             body += "<select name='slct-del-aud' id='slct-del-aud' class='form-control text-sm'>"
@@ -316,7 +316,7 @@ def display_routing(otype, oid, thread):
 
                     body += msg["file"].get("fname") + "</a></div>"
                 body += "</div>"  #row
-        body += '<form id="message-add" enctype="multipart/form-data" action="/routing_form" method="POST"  >'
+        body += '<form id="message-add" enctype="multipart/form-data" action="' + S4S4_BASE + '/routing_form" method="POST"  >'
 
 
         body += hidden_inputs()             
@@ -409,6 +409,9 @@ def display_routing(otype, oid, thread):
     if thread["thread_id"] == "0": #if new thread, display at the bottom
         # body += "<li class='list-group-item active-thread'"
         if thread["user"] not in thread["audience"]:
+            print(thread["user"], [thread["user"]])
+            print("1: ", thread["audience"], type(thread["audience"]))
+            print(thread["user"] not in thread["audience"])
             thread["audience"].append(thread["user"])
         if not thread.get("tags"):
             thread["tags"] = [{"id": [otype, oid],
@@ -477,6 +480,7 @@ def create_rt_thread(otype, oid, thr_params, message, rq_files):
     thr_params["audience"] = aud_str2ary(thr_params["audience"])
     thr_params["tags"] = json.loads(thr_params["tags"])
     if thr_params["user"] not in thr_params["audience"]:
+        print("2: ", thread["audience"])
         thr_params["audience"].append(thr_params["user"])
 
     unread = thr_params["audience"][:] # assign by value
@@ -538,6 +542,7 @@ def add_rt_message(thr_params, user, message, rq_files, source):
     try: 
         th = db.routings.find_one({"_id": ObjectId(thr_params["thread_id"])})
         if user not in th["audience"]:
+            print("3: ", th["audience"])
             th["audience"].append(user)
         unread = th["audience"][:]
         if user in unread:
@@ -635,6 +640,7 @@ def add_audience_rtg(thr_params, aud):
 
         for n in new_aud:
             if n not in thr_params["audience"]:
+                print("4: ", thr_params["audience"] )
                 thr_params["audience"].append(n)
             else:
                 pass

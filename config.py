@@ -18,3 +18,5 @@ EMAIL_SENDER_ACC = "akvaryum@solusmart.com"
 EMAIL_SENDER_PWD = "rootroot."
 
 MODAL_DISPLAY = False # Modal or new tab display; Works only with ninja2 frameworks
+
+S4S4_BASE = "http://localhost:5010"
