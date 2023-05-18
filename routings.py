@@ -316,7 +316,7 @@ def display_routing(otype, oid, thread):
 
                     body += msg["file"].get("fname") + "</a></div>"
                 body += "</div>"  #row
-        body += '<form id="message-add" enctype="multipart/form-data" action="' + S4S4_BASE + '/routing_form" method="POST"  >'
+        body += '<form id="message-add" enctype="multipart/form-data" action="' + S4S4_BASE + '/add_message" method="POST"  >'
 
 
         body += hidden_inputs()             
@@ -395,8 +395,10 @@ def display_routing(otype, oid, thread):
                 body += "<li class='list-group-item text-sm'><div class=''><a class='akv-link' onclick='" + click + "' style='color:SeaGreen;'>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":</a>"
                 body += thr["messages"][0]["message"][:50] + "</div>"  
             else:
-                link = "/routing_form?otype=" + otype + "&oid=" + str(oid) + "&thread_id=" + str(thr["_id"]) 
-                link += "&audience=" + str(thr["audience"])  # send array as string, will parse to array when processing
+                # link = "/routing_form?otype=" + otype + "&oid=" + str(oid) + "&thread_id=" + str(thr["_id"]) 
+                # link += "&audience=" + str(thr["audience"])  # send array as string, will parse to array when processing
+                link = S4S4_BASE +'/routing_form?otype=' + otype + '&oid=' + str(oid) + '&thread_id=' + str(thr["_id"]) 
+                link += '&audience=[' + ",".join(thr["audience"]) + "]"  # send array as string, will parse to array when processing
                 body += "<li class='list-group-item text-sm'><div class=''><a class='akv-link' href='" + link + "' style='color:SeaGreen;'>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":</a>"
                 body += thr["messages"][0]["message"][:50] + "</div>"  
                 # body += "<div class='pl-2'><a href='" + link + "' style='color:SeaGreen;'>" + str(thr["audience"]) + "</a>"
@@ -480,7 +482,7 @@ def create_rt_thread(otype, oid, thr_params, message, rq_files):
     thr_params["audience"] = aud_str2ary(thr_params["audience"])
     thr_params["tags"] = json.loads(thr_params["tags"])
     if thr_params["user"] not in thr_params["audience"]:
-        print("2: ", thread["audience"])
+        print("2: ", thr_params["audience"])
         thr_params["audience"].append(thr_params["user"])
 
     unread = thr_params["audience"][:] # assign by value

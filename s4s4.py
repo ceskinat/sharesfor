@@ -1,12 +1,12 @@
     #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 14 12:13:40 2022
+Created on Wed Sep 14 113:40 2022
 
 @author: cem
 """
 
-from flask import Flask, render_template, request, session, redirect, url_for, send_file
+from flask import Flask, render_template, request, session, redirect, url_for, send_file, abort
 
 from sampleintfcs import object_list
 # from config import session["user"]["username"]# from demopageintfcs import object_list, session["user"]["username"]
@@ -63,22 +63,22 @@ def routing_form():
 
     if request.method == "GET":
         
-        #set the session user parameter the first time routing_form is called
-        # session["user"]["username"] = request.args.get("user")        
         
         action = "display routing"
         print(request.args)
 
+        if not session.get("user") or not session["user"].get("username"):
+            abort(401)
+
         otype = request.args.get("otype")
         oid = request.args.get("oid")
-        if not session.get("user") or not session["user"].get("username") :
-            session["user"] = {"username": request.args.get("username"),
-                               "email": request.args.get("email")}
         if request.args.get("thread_id") not in ["0", None]:
             thr_params = {"thread_id": ObjectId(request.args.get("thread_id"))}
             remove_from_unread(thr_params["thread_id"], session["user"]["username"])
         else: 
             thr_params = {"thread_id": "0"}
+        
+        # GET calls are  only self requested, therefore session parameter should be set
         thr_params["user"] = session["user"]["username"]
         
         if request.args.get("audience"):
@@ -87,46 +87,71 @@ def routing_form():
             print("r.g.a: ", request.args.get("audience"))
             thr_params["audience"] = []
         # thread["user"] =  session["user"]["username"]
-    else: #POST: create routing thread or add message
 
-        print("request.files: ", list(request.files))
-        if "file" in request.files: 
-            print(request.files["file"].filename)
-        print("request.form: ", list(request.form))
-        
-        if request.form["thread_id"] != "0":
-            thr_params = {"thread_id": ObjectId(request.form["thread_id"]),
-                          "user": session["user"]["username"]}
+    else: #POST: request from an application
+        session.pop("user", None)
+        session["user"] = {"username": request.form.get("username"),
+                               "email": request.form.get("email")}
+        thr_params = {"thread_id": "0",
+                      "user": session["user"]["username"]}
+        otype = request.form.get("otype")
+        oid = request.form.get("oid")
+        if request.form.get("audience"): # for requests to a specific audience - like admin, etc.
+            thr_params["audience"] = request.form.get("audience").replace("[","").replace("]","").replace("'", "").split(",") # convert string of emails to array
         else:
-            thr_params = {"thread_id": "0",
-                          "user": session["user"]["username"]}
-            
-        otype = request.form["otype"]
-        oid = request.form["oid"]
-        # signed_msg = MSG_SIGN + request.form["message"] 
+            thr_params["audience"] = []
 
-        if thr_params["thread_id"] == "0":  # create new thread
-            thr_params["audience"] = request.form["audience"]
-            thr_params["tags"] = request.form["tags"]
-            # aud = request.form["audience"].replace("[","").replace("]","").replace("'", "").split(",") # convert str - list
-            action = "route object"
-            print(request.files)
-            thr_params = create_rt_thread(request.form["otype"], 
-                                          rtg_object_id(request.form["oid"]),
-                                          thr_params,
-                                          request.form["message"],
-                                          request.files
-                                          )
+    print(thr_params)    
+    rtg = display_routing(otype, rtg_object_id(oid), thr_params)
+    if MODAL_DISPLAY:
+        return rtg # for modal type display
+    else:
+        return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
+
         
-        else:
-            action = "add message"
-            thr_params = add_rt_message(thr_params, 
-                                        session["user"]["username"], 
-                                          request.form["message"],
-                                          request.files,
-                                          "akvaryum")
-                                        # signed_msg)
-            socketio.emit("refresh", to=str(thr_params["thread_id"]))
+@app.route('/add_message', methods=["POST"])
+def add_message():
+        
+    #create routing thread or add message
+
+    print("request.files: ", list(request.files))
+    if "file" in request.files: 
+        print(request.files["file"].filename)
+    print("request.form: ", list(request.form))
+    
+    if request.form["thread_id"] != "0":
+        thr_params = {"thread_id": ObjectId(request.form["thread_id"]),
+                      "user": session["user"]["username"]}
+    else:
+        thr_params = {"thread_id": "0",
+                      "user": session["user"]["username"]}
+        
+    otype = request.form["otype"]
+    oid = request.form["oid"]
+    # signed_msg = MSG_SIGN + request.form["message"] 
+
+    if thr_params["thread_id"] == "0":  # create new thread
+        thr_params["audience"] = request.form["audience"]
+        thr_params["tags"] = request.form["tags"]
+        # aud = request.form["audience"].replace("[","").replace("]","").replace("'", "").split(",") # convert str - list
+        action = "route object"
+        print(request.files)
+        thr_params = create_rt_thread(request.form["otype"], 
+                                      rtg_object_id(request.form["oid"]),
+                                      thr_params,
+                                      request.form["message"],
+                                      request.files
+                                      )
+    
+    else:
+        action = "add message"
+        thr_params = add_rt_message(thr_params, 
+                                    session["user"]["username"], 
+                                      request.form["message"],
+                                      request.files,
+                                      "akvaryum")
+                                    # signed_msg)
+        socketio.emit("refresh", to=str(thr_params["thread_id"]))
 
     rtg = display_routing(otype, rtg_object_id(oid), thr_params)
     if MODAL_DISPLAY:
