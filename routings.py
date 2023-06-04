@@ -232,7 +232,7 @@ def display_routing(otype, oid, thread):
         # body = "<div class='input-group m-2 audience-selector'>"
         body = "<div class='aud-selector p-1 pl-3'>" 
         # body += "<h6>Alıcılar:</h6>"
-        body += "<div class='p-0 mb-3 border border-light'>"
+        # body += "<div class='p-0 mb-3 border border-light'>"
         body += "<div class='row'>"
         body += "<div class='col-xl-2'>"
         body += "<h6>" + xlate_msg("RcptsTitle", LANG) +  "</h6></div>"
@@ -255,7 +255,7 @@ def display_routing(otype, oid, thread):
             body += aud_del()
             # do not allow deleting if thread is not yet recorded
         body += "</div>"
-        body += "</div>"
+        # body += "</div>"
         body += "</div>"
         
         return body    

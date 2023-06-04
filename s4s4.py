@@ -370,7 +370,10 @@ def xlated_msg():
     from routings import xlate_msg, LANG
     return xlate_msg(None, LANG)
 
-
+@app.context_processor
+def inject_skin():
+    from config import STYLE_SHEET
+    return {"style_sheet": STYLE_SHEET}
 
 
 if __name__ == '__main__':
