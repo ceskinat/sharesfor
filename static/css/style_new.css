@@ -101,6 +101,7 @@ div.active-thread {
 }
 .bg-msg {
     background-color: White;
+    border-radius: 6px;
     }
 .rtg-link {
     text-decoration: none;
