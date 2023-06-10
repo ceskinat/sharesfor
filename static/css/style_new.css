@@ -91,8 +91,7 @@ div.active-thread {
     padding: 5px;
 #    background-color: GhostWhite;
     background-color: DarkSlateGrey;
-    margin: 20px;
-    margin-left: 2px;
+    margin: 2px 20px 2px 20px;
     }
     
 .text-sm {
@@ -193,4 +192,15 @@ div.attach-file {
 }
 div.attach-file input {
     color: LightGrey;
+}
+div.magnifier {
+    color: DarkSlateGrey;
+    margin-right: 20px;
+}
+div.magnifier h4 {
+    text-align: right;    
+    border: 1px dotted;
+}
+div.magnifier h4:hover {
+    cursor: zoom-in;
 }

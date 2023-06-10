@@ -115,6 +115,113 @@
             location.href = addr;
         });
     </script>
+
+<!-- focus modal and necessary scripts -->
+
+    <script type="text/javascript">
+    
+    /*    function showOnModal( ) {
+            
+            $("#focusModal").find(".modal-body").html($(event.target).parent().next().html() );
+            $("#focusModal").find(".modal-title").html($(event.target).siblings(".section-title").html() );
+            $("#focusModal").modal(show=true);
+        };
+    */
+        function showOnModal( cnt ) {
+            if (cnt) {
+                $("#focusModal").find(".modal-body").html($(event.target).next().html());
+            
+            }
+            else{
+                $("#focusModal").find(".modal-body").html($(event.target).parent().next().html() );
+            };
+            redirectSubmit();
+            $("#focusModal").find(".modal-title").html($(event.target).siblings(".section-title").html() );
+            $("#focusModal").modal(show=true);
+        };
+    
+     
+    </script>
+    <!-- Modal -->
+    <div class="modal fade" id="focusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+        <script type="text/javascript">
+         
+            function showRouting(otype, oid, tid, aud) {
+                if (typeof socket != "undefined") {
+                    socket.emit('leave', {room: $("input[name='thread_id']").val()});
+                    console.log("Left room: " + $("input[name='thread_id']").val());
+                }
+                $.get("localhost:5010/routing_form",
+        //                {otype:  otype, oid: oid, thread_id: tid, audience: aud, user: usr},
+                        {otype:  otype, oid: oid, thread_id: tid, audience: aud},
+                        function(data,status) {
+                            console.log(status)
+                            $("#rtgModal").find(".modal-body").html(data);
+                            $("#rtgModal").modal(show=true);
+                            redirectSubmit();
+                            if (typeof socket != "undefined") {
+                                socket.emit('join', {room: $("input[name='thread_id']").val()});
+                                console.log("Joined room: " + $("input[name='thread_id']").val());
+                            }
+        //                    initSocket();
+                        })
+            }
+            function redirectSubmit(){
+                console.log('1');
+                $("#focusModal").on("shown", function() {
+                    $('#focusModal form').on('submit', function(event){ 
+                        event.preventDefault();
+                        console.log("2");
+                        var postData = new FormData($(this)[0]);
+                        postData.activeonly = true;
+        /*                $.post($(this).attr('action'),
+                                $(this).serialize(),
+                                function(data,status) {
+                                    $("#focusModal").find(".modal-body").html(data);
+                                    $("#focusModal").modal(show=true);  
+                                    console.log('3');
+                                    redirectSubmit()
+                                }
+                        ); */
+                        $.ajax({
+                                url: $(this).attr('action'),
+                                type: "POST",
+                                data: postData,
+                                processData: false,
+                                contentType: false,
+                                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                            alert('Error ' + textStatus);
+                                            alert(errorThrown);
+                                            alert(XMLHttpRequest.responseText);
+                                        },
+                                success: function(data,status) {
+                                                                $("#focusModal").find(".modal-body").html(data);
+                                                                $("#focusModal").modal(show=true);  
+                                                                console.log('3');
+                                                                redirectSubmit()
+                                                            }
+        
+                                 });
+                    });
+                })
+           }  
+
+        </script>
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle"></h5> 
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
     <div class='jumbotron collaborations bg-light p-4'>
     {{session.user.username}}
         <h3>{{TopTitle}}</h3>

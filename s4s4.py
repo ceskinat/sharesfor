@@ -61,6 +61,7 @@ def on_leave(data):
 def routing_form():
 
 
+    thr_list = True #show threadlist on the left unless called from focusModal
     if request.method == "GET":
         
         
@@ -87,6 +88,8 @@ def routing_form():
             print("r.g.a: ", request.args.get("audience"))
             thr_params["audience"] = []
         # thread["user"] =  session["user"]["username"]
+        if request.args.get("activeonly"):
+            thr_list = False
 
     else: #POST: request from an application
         session.pop("user", None)
@@ -102,8 +105,9 @@ def routing_form():
             thr_params["audience"] = []
 
     print(thr_params)    
-    rtg = display_routing(otype, rtg_object_id(oid), thr_params)
-    if MODAL_DISPLAY:
+    rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
+
+    if MODAL_DISPLAY or not thr_list:
         return rtg # for modal type display
     else:
         return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
@@ -113,7 +117,11 @@ def routing_form():
 def add_message():
         
     #create routing thread or add message
-
+    
+    thr_list = True
+    if request.form.get("activeonly"):
+        thr_list = False
+    
     print("request.files: ", list(request.files))
     if "file" in request.files: 
         print(request.files["file"].filename)
@@ -153,8 +161,8 @@ def add_message():
                                     # signed_msg)
         socketio.emit("refresh", to=str(thr_params["thread_id"]))
 
-    rtg = display_routing(otype, rtg_object_id(oid), thr_params)
-    if MODAL_DISPLAY:
+    rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
+    if MODAL_DISPLAY or not thr_list:
         return rtg # for modal type display
     else:
         return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
@@ -163,8 +171,12 @@ def add_message():
     
 @app.route('/add_audience', methods = [ "POST"])
 def add_audience():
-
-
+    
+    thr_list = True
+    if request.form.get("activeonly"):
+        thr_list = False
+    
+    
     thr_params = {"thread_id": request.form["thread_id"],
                   "user": session["user"]["username"]}
     
@@ -233,8 +245,8 @@ def add_audience():
     thread = add_audience_rtg(thr_params, aud)   
 
 
-    rtg = display_routing(otype, rtg_object_id(oid), thread)
-    if MODAL_DISPLAY:
+    rtg = display_routing(otype, rtg_object_id(oid), thread, thr_list)
+    if MODAL_DISPLAY or not thr_list:
         return rtg # for modal type display
     else:
         return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
@@ -243,6 +255,9 @@ def add_audience():
 @app.route('/del_audience', methods = [ "POST"])
 def del_audience():
 
+    thr_list = True
+    if request.form.get("activeonly"):
+        thr_list = False
 
     thread_id = request.form["thread_id"]
     otype = request.form["otype"]
@@ -306,8 +321,8 @@ def del_audience():
                   "user": session["user"]["username"]}
     thr_params = del_audience_rtg(thr_params, aud)
 
-    rtg = display_routing(otype, rtg_object_id(oid), thr_params)
-    if MODAL_DISPLAY:
+    rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
+    if MODAL_DISPLAY or not thr_list:
         return rtg # for modal type display
     else:
         return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
@@ -317,6 +332,11 @@ def del_audience():
 from routings import add_tag_rtg, del_tag_rtg
 @app.route('/add_tag', methods = [ "POST"])
 def add_tag():
+    thr_list = True
+    if request.form.get("activeonly"):
+        thr_list = False
+
+
     thr_params = {"thread_id": request.form["thread_id"]}
     thr_params["user"] = session["user"]["username"]
     
@@ -326,8 +346,8 @@ def add_tag():
     otype = request.form["otype"]
     oid = request.form["oid"]
     thr_params = add_tag_rtg(thr_params, request.form["tagid"])
-    rtg = display_routing(otype, rtg_object_id(oid), thr_params)
-    if MODAL_DISPLAY:
+    rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
+    if MODAL_DISPLAY or not thr_list:
         return rtg # for modal type display
     else:
         return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
@@ -335,6 +355,11 @@ def add_tag():
 
 @app.route('/del_tag', methods = [ "POST"])
 def del_tag():
+    thr_list = True
+    if request.form.get("activeonly"):
+        thr_list = False
+
+    
     thr_params = {"thread_id": request.form["thread_id"]}
     thr_params["user"] = session["user"]["username"]
     
@@ -344,8 +369,8 @@ def del_tag():
     otype = request.form["otype"]
     oid = request.form["oid"]
     thr_params = del_tag_rtg(thr_params, request.form["slct-del-tag"])
-    rtg = display_routing(otype, rtg_object_id(oid), thr_params)
-    if MODAL_DISPLAY:
+    rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
+    if MODAL_DISPLAY or not thr_list:
         return rtg # for modal type display
     else:
         return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])

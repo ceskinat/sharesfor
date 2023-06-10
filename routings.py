@@ -90,10 +90,11 @@ def aud_list(aud):
 
 
 
-def display_routing(otype, oid, thread):
+def display_routing(otype, oid, thread, thr_list):
     
     # thread is a  dictionary containing thread_id, user, audience and tags if new thread;
     # only thread_id and user is enopugh if existing thread
+    # thr_list is a boolean denoting if the thread list on the left is displayed or only active thread is returned
 
 
     def tag_section(tags):
@@ -278,7 +279,10 @@ def display_routing(otype, oid, thread):
 
     def display_active_thread(msgs):
 
-        body = "<div class='active-thread'>"
+        body = "<div class='magnifier'>"
+        body += "<h4 onclick='showOnModal()'  title='" + xlate_msg("ZoomTitle", LANG) + "'>+</h4></div>"
+        body += "<div class='active-thread'>"
+
 
         print("thr-aud: ", thread["audience"])
         body += aud_selector(thread["audience"])
@@ -355,89 +359,100 @@ def display_routing(otype, oid, thread):
     """ main part of display_routing """
     
     db = client.routeX
-    body = display_obj_summary(otype, oid)
+    if thr_list:
+        body = display_obj_summary(otype, oid)
+    else:
+        body = ""
     
     # thread["exc_ID"] = "UndefFlt"
     if thread.get("exc_ID"):
         body += display_exception(thread["exc_ID"], LANG)
         
-    body += "<div class='row'>"
-    body += "<div class='col-xl-4'>"
-    # body += "<h5>Yorum / Paylaşımlar:</h5>"
-    body += "<h5>" + xlate_msg("RtgsTitle",LANG) +"</h5>"
-    body += "<ul class='list-group'>"
-    # for thr in db.routings.find({"obj_type": otype,
-    #                                 "obj_id": oid}):
-    if type(thread["thread_id"]) is str:
-        print("********Istıring:", thread["thread_id"], "*********")
-    else:
-        print("****** Thread_id:", str(thread["thread_id"]), "************")
-    for thr in db.routings.find({"tags.id": [otype, oid]}):
-        
-        unread = False
-        if thr["_id"] == thread["thread_id"]:
-            thread["audience"] = thr["audience"]
-            thread["tags"] = thr["tags"]
-            # body += "<li class='list-group-item active-thread'>"
-            # body += display_active_thread(thr.get("messages"))
-            body += "<li class='list-group-item text-sm'><div class=''>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":"
-            body += thr["messages"][0]["message"][:50] + "</div>"
-            active_msgs = thr.get("messages")
+
+    if thr_list:
+        body += "<div class='row'>"
+        body += "<div class='col-xl-4'>"
+        # body += "<h5>Yorum / Paylaşımlar:</h5>"
+        body += "<h5>" + xlate_msg("RtgsTitle",LANG) +"</h5>"
+        body += "<ul class='list-group'>"
+        # for thr in db.routings.find({"obj_type": otype,
+        #                                 "obj_id": oid}):
+        if type(thread["thread_id"]) is str:
+            print("********Istıring:", thread["thread_id"], "*********")
         else:
-            if thr.get("unread") and thread["user"] in thr.get("unread"): 
-                unread = True
-
-            if unread:
-                body += "<b>"
-
-            if MODAL_DISPLAY:
-                click  = 'showRouting("'  + otype + '","' + str(oid) + '","' + str(thr["_id"]) + '")'
-                body += "<li class='list-group-item text-sm'><div class=''><a class='akv-link' onclick='" + click + "' style='color:SeaGreen;'>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":</a>"
-                body += thr["messages"][0]["message"][:50] + "</div>"  
-            else:
-                # link = "/routing_form?otype=" + otype + "&oid=" + str(oid) + "&thread_id=" + str(thr["_id"]) 
-                # link += "&audience=" + str(thr["audience"])  # send array as string, will parse to array when processing
-                link = S4S4_BASE +'/routing_form?otype=' + otype + '&oid=' + str(oid) + '&thread_id=' + str(thr["_id"]) 
-                link += '&audience=[' + ",".join(thr["audience"]) + "]"  # send array as string, will parse to array when processing
-                body += "<li class='list-group-item text-sm'><div class=''><a class='akv-link' href='" + link + "' style='color:SeaGreen;'>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":</a>"
-                body += thr["messages"][0]["message"][:50] + "</div>"  
-                # body += "<div class='pl-2'><a href='" + link + "' style='color:SeaGreen;'>" + str(thr["audience"]) + "</a>"
+            print("****** Thread_id:", str(thread["thread_id"]), "************")
+        for thr in db.routings.find({"tags.id": [otype, oid]}):
             
-        body += "</li>"
-        if unread: 
-            body += "</b>"
-    body += "</ul>"
+            unread = False
+            if thr["_id"] == thread["thread_id"]:
+                thread["audience"] = thr["audience"]
+                thread["tags"] = thr["tags"]
+                # body += "<li class='list-group-item active-thread'>"
+                # body += display_active_thread(thr.get("messages"))
+                body += "<li class='list-group-item text-sm'><div class=''>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":"
+                body += thr["messages"][0]["message"][:50] + "</div>"
+                active_msgs = thr.get("messages")
+            else:
+                if thr.get("unread") and thread["user"] in thr.get("unread"): 
+                    unread = True
     
-    if thread["thread_id"] == "0": #if new thread, display at the bottom
-        # body += "<li class='list-group-item active-thread'"
-        if thread["user"] not in thread["audience"]:
-            print(thread["user"], [thread["user"]])
-            print("1: ", thread["audience"], type(thread["audience"]))
-            print(thread["user"] not in thread["audience"])
-            thread["audience"].append(thread["user"])
-        if not thread.get("tags"):
-            thread["tags"] = [{"id": [otype, oid],
-                              "name": object_name(otype, oid)}]
-        print("id: ", thread["thread_id"], "aud:", thread["audience"])
-        # body += "<div class='pl-2'><input type='text' name='audience' class='form-control-plaintext' readonly value=" + aud_list(thread["audience"])  + "></div>" #+ "</a>"   thr["router"] + ", " ", ".join(thr["target"])
-        # body += "</li>"
-        active_msgs = []
+                if unread:
+                    body += "<b>"
+    
+                if MODAL_DISPLAY:
+                    click  = 'showRouting("'  + otype + '","' + str(oid) + '","' + str(thr["_id"]) + '")'
+                    body += "<li class='list-group-item text-sm'><div class=''><a class='akv-link' onclick='" + click + "' style='color:SeaGreen;'>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":</a>"
+                    body += thr["messages"][0]["message"][:50] + "</div>"  
+                else:
+                    # link = "/routing_form?otype=" + otype + "&oid=" + str(oid) + "&thread_id=" + str(thr["_id"]) 
+                    # link += "&audience=" + str(thr["audience"])  # send array as string, will parse to array when processing
+                    link = S4S4_BASE +'/routing_form?otype=' + otype + '&oid=' + str(oid) + '&thread_id=' + str(thr["_id"]) 
+                    link += '&audience=[' + ",".join(thr["audience"]) + "]"  # send array as string, will parse to array when processing
+                    body += "<li class='list-group-item text-sm'><div class=''><a class='akv-link' href='" + link + "' style='color:SeaGreen;'>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":</a>"
+                    body += thr["messages"][0]["message"][:50] + "</div>"  
+                    # body += "<div class='pl-2'><a href='" + link + "' style='color:SeaGreen;'>" + str(thr["audience"]) + "</a>"
+                
+            body += "</li>"
+            if unread: 
+                body += "</b>"
+        body += "</ul>"
+        
+        if thread["thread_id"] == "0": #if new thread, display at the bottom
+            # body += "<li class='list-group-item active-thread'"
+            if thread["user"] not in thread["audience"]:
+                print(thread["user"], [thread["user"]])
+                print("1: ", thread["audience"], type(thread["audience"]))
+                print(thread["user"] not in thread["audience"])
+                thread["audience"].append(thread["user"])
+            if not thread.get("tags"):
+                thread["tags"] = [{"id": [otype, oid],
+                                  "name": object_name(otype, oid)}]
+            print("id: ", thread["thread_id"], "aud:", thread["audience"])
+            # body += "<div class='pl-2'><input type='text' name='audience' class='form-control-plaintext' readonly value=" + aud_list(thread["audience"])  + "></div>" #+ "</a>"   thr["router"] + ", " ", ".join(thr["target"])
+            # body += "</li>"
+            active_msgs = []
+    
+        elif MODAL_DISPLAY:
+            click  = 'showRouting("'  + otype + '","' + str(oid) + '","0")'
+            body += "<div><a class='akv-link' href='#' onclick='" + click + "'>" + xlate_msg("NewMsg", LANG) +"</a></div>" 
+        else:
+            body += "<div><a class='akv-link' href='/routing_form?otype=" + otype + "&oid=" + str(oid) + "&thread_id=0'>" + xlate_msg("NewMsg", LANG) +"</a></div>" 
+            # body += "<div><a class='akv-link' href='#' onclick='" + click + "'>Yeni Yorum/Paylaşım</a></div>" 
 
-    elif MODAL_DISPLAY:
-        click  = 'showRouting("'  + otype + '","' + str(oid) + '","0")'
-        body += "<div><a class='akv-link' href='#' onclick='" + click + "'>" + xlate_msg("NewMsg", LANG) +"</a></div>" 
-    else:
-        body += "<div><a class='akv-link' href='/routing_form?otype=" + otype + "&oid=" + str(oid) + "&thread_id=0'>" + xlate_msg("NewMsg", LANG) +"</a></div>" 
-        # body += "<div><a class='akv-link' href='#' onclick='" + click + "'>Yeni Yorum/Paylaşım</a></div>" 
+
+
+        body += "</div>" # column
+    
+        body += "<div class='col-xl-8'>"
 
 
 
-    body += "</div>" # column
 
-    body += "<div class='col-xl-8'>"
     body += display_active_thread(active_msgs)
-    body += "</div>" # column
-    body += "</div>" # row
+
+    if thr_list:
+        body += "</div>" # column
+        body += "</div>" # row
     
     return body
 
