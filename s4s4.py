@@ -358,6 +358,7 @@ def del_tag():
     thr_list = True
     if request.form.get("activeonly"):
         thr_list = False
+        print("Activeonly received")
 
     
     thr_params = {"thread_id": request.form["thread_id"]}

@@ -7,7 +7,7 @@ abbr {
 
 div.collaborations h3 {
     text-align: center;
-    color: seagreen;
+    color: SteelBlue;
 #    font-size: 56px;
 #    padding: 15;
     
@@ -49,7 +49,7 @@ form.form-inline input, button {
     }
 .heading-link {
     font-size: small;
-    color: SeaGreen;
+    color: SteelBlue;
     }
 
 .btn-aksiyon, nav-item, nav-link {
@@ -66,18 +66,18 @@ form.form-inline input, button {
 
 .btn-routings {
 #    background-color: DarkSlateBlue;
-    background-color: SeaGreen;
+    background-color: SteelBlue;
     color: white;
     }
 .btn-routings:hover {
     background-color: white;
     border: 1px solid;
 #    border-color: DarkSlateBlue;
-    border-color: SeaGreen;
+    border-color: SteelBlue;
     }
 
 .akv-link {
-    color: SlateGrey;
+    color: SteelBlue;
     }
 .akv-link:hover {
     color: DarkSlateGrey;
@@ -90,7 +90,7 @@ div.active-thread {
 #    border-color: DarkSlateBlue;
     padding: 5px;
 #    background-color: GhostWhite;
-    background-color: DarkSlateGrey;
+    background-color: SteelBlue;
     margin: 2px 20px 2px 20px;
     }
     
@@ -111,7 +111,7 @@ div.active-thread {
 }
 
 .rtg-list-title {
-    color: SeaGreen;
+    color: SteelBlue;
     font-size: small;
 }
 
@@ -198,8 +198,9 @@ div.magnifier {
     margin-right: 20px;
 }
 div.magnifier h4 {
-    text-align: right;    
-    border: 1px dotted;
+    text-align: center;
+#    width: 5%;
+#    border: 1px solid;    
 }
 div.magnifier h4:hover {
     cursor: zoom-in;

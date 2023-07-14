@@ -408,7 +408,7 @@ def display_routing(otype, oid, thread, thr_list):
                     # link += "&audience=" + str(thr["audience"])  # send array as string, will parse to array when processing
                     link = S4S4_BASE +'/routing_form?otype=' + otype + '&oid=' + str(oid) + '&thread_id=' + str(thr["_id"]) 
                     link += '&audience=[' + ",".join(thr["audience"]) + "]"  # send array as string, will parse to array when processing
-                    body += "<li class='list-group-item text-sm'><div class=''><a class='akv-link' href='" + link + "' style='color:SeaGreen;'>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":</a>"
+                    body += "<li class='list-group-item text-sm'><div class=''><a class='akv-link' href='" + link + "'>" + aud_list(thr["audience"]) + "-" + thr["messages"][-1]["time"].strftime("%d/%m/%y-%H:%M") + ":</a>"
                     body += thr["messages"][0]["message"][:50] + "</div>"  
                     # body += "<div class='pl-2'><a href='" + link + "' style='color:SeaGreen;'>" + str(thr["audience"]) + "</a>"
                 
