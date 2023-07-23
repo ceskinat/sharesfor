@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/' +  style_sheet) }}">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<script type="text/javascript">
+/*    function filterFunct() {
+        var fd = new FormData();
+        fd.append("tag", $("#tag").val());
+        
+        $.ajax({
+            type: "POST",
+            url: "/obj_list",
+            data: fd,
+            processData: false,
+            contentType: false,
+            success: function(result){
+                 $("div.obj-list").html(result)
+                
+            }
+        });
+    };
+*/
+
+    function filterFunct(divId, inpId) {
+    /* displays the account list on a given div, query performed on data typed on given inp */
+        var fd = new FormData();
+        fd.append("name", $("#" + inpId).val());
+        
+        $.ajax({
+            type: "POST",
+            url: "/obj_list",
+            data: fd,
+            processData: false,
+            contentType: false,
+             success: function(result){
+                 $("#" + divId).html(result)
+                
+            }
+        });
+    };
+    
+    function selectTag() {
+        $("#tagname").val($(event.target).text());
+        $("#tagid").val($(event.target).val());
+        $("#tag-submit").focus()
+            
+    };
+    
+    function selectObj() {
+        $("#tag").val($(event.target).text())
+    }
+    function displaySlcts() {
+        $("#aud-selectors").toggle()
+        if ($("#aud-selectors").css("display") === "none"){
+            $("#toggle-aud-slct").text("Kişi Ekle/Çıkar")
+        }
+        else {
+            $("#toggle-aud-slct").text("Kapat")
+        }
+    }
+    
+    function displaySlcts() {
+        AddRm = "{{ToggleAddRmRcpt}}"
+        Close = "{{CloseAddRm}}"
+        $("#aud-selectors").toggle()
+        if ($("#aud-selectors").css("display") === "none"){
+//            $("#toggle-aud-slct").text("Kişi Ekle/Çıkar")
+            $("#toggle-aud-slct").text(AddRm)
+        }
+        else {
+            $("#toggle-aud-slct").text(Close)
+        }
+    }
+    function displaySlcts_tags() {
+        AddRm = "{{ToggleAddRmTags}}"
+        Close = "{{CloseAddRm}}"
+        $("#tag-selectors").toggle()
+        if ($("#tag-selectors").css("display") === "none"){
+            $("#toggle-tag-slct").text(AddRm)
+        }
+        else {
+            $("#toggle-tag-slct").text(Close)
+        }
+    }
+
+</script>
+
+   <div class="container">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        var socket = io();
+        
+        socket.on('connect', function() {
+            socket.emit('join', {room: $("input[name='thread_id']").val()});
+            console.log("Joined room: " + $("input[name='thread_id']").val());
+            });
+
+        socket.on("refresh", function() {
+            let addr = "/routing_form?otype=" + $("input[name='otype']").val() + "&oid=" + 
+                        $("input[name='oid']").val() + "&thread_id=" + $("input[name='thread_id']").val();
+            location.href = addr;
+        });
+    </script>
+
+<!-- focus modal and necessary scripts -->
+
+    <script type="text/javascript">
+    
+    /*    function showOnModal( ) {
+            
+            $("#focusModal").find(".modal-body").html($(event.target).parent().next().html() );
+            $("#focusModal").find(".modal-title").html($(event.target).siblings(".section-title").html() );
+            $("#focusModal").modal(show=true);
+        };
+    */
+        function showOnModal( cnt ) {
+            if (cnt) {
+                $("#focusModal").find(".modal-body").html($(event.target).next().html());
+            
+            }
+            else{
+                $("#focusModal").find(".modal-body").html($(event.target).parent().next().html() );
+            };
+            redirectSubmit();
+            $("#focusModal").find(".modal-title").html($(event.target).siblings(".section-title").html() );
+            $("#focusModal").modal(show=true);
+        };
+    
+     
+    </script>
+    <!-- Modal -->
+    <div class="modal modal-xl fade" id="focusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+        <script type="text/javascript">
+         
+            function showRouting(otype, oid, tid, aud) {
+                if (typeof socket != "undefined") {
+                    socket.emit('leave', {room: $("input[name='thread_id']").val()});
+                    console.log("Left room: " + $("input[name='thread_id']").val());
+                }
+                $.get("localhost:5010/routing_form",
+        //                {otype:  otype, oid: oid, thread_id: tid, audience: aud, user: usr},
+                        {otype:  otype, oid: oid, thread_id: tid, audience: aud},
+                        function(data,status) {
+                            console.log(status)
+                            $("#rtgModal").find(".modal-body").html(data);
+                            $("#rtgModal").modal(show=true);
+                            redirectSubmit();
+                            if (typeof socket != "undefined") {
+                                socket.emit('join', {room: $("input[name='thread_id']").val()});
+                                console.log("Joined room: " + $("input[name='thread_id']").val());
+                            }
+        //                    initSocket();
+                        })
+            }
+            function redirectSubmit(){
+                console.log('1');
+                $(document).ready(function() {
+                    $('#focusModal form').on('submit', function(event){ 
+                        event.preventDefault();
+                        console.log("2");
+                        var postData = new FormData($(this)[0]);
+                        postData['activeonly'] = 'true';
+        /*                $.post($(this).attr('action'),
+                                $(this).serialize(),
+                                function(data,status) {
+                                    $("#focusModal").find(".modal-body").html(data);
+                                    $("#focusModal").modal(show=true);  
+                                    console.log('3');
+                                    redirectSubmit()
+                                }
+                        ); */
+                        $.ajax({
+                                url: $(this).attr('action'),
+                                type: "POST",
+                                data: postData,
+                                processData: false,
+                                contentType: false,
+                                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                            alert('Error ' + textStatus);
+                                            alert(errorThrown);
+                                            alert(XMLHttpRequest.responseText);
+                                        },
+                                success: function(data,status) {
+                                                                $("#focusModal").find(".modal-body").html(data);
+                                                                $("#focusModal").modal(show=true);  
+                                                                console.log('3');
+                                                                redirectSubmit()
+                                                            }
+        
+                                 });
+                    });
+                })
+           }  
+
+        </script>
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle"></h5> 
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class='jumbotron collaborations bg-light p-4'>
+    {{session.user.username}}
+        <h3>{{TopTitle}}</h3>
+        <div class="container container-routing mt-3  pb-4">
+            <button type="button" class="btn-close close text-right" onclick="window.open('', '_self', ''); window.close();">x</button>
+            <br>
+            <h4>{{obj.type}}:{{obj.name}}</h4>
+            {% if exception %}
+                <div class="exc-display">exception</div>
+            {% endif %}
+        <div class="row">
+        
+<!-- THREAD LIST -->
+            <div clas="col-xl-4">  
+                <h5>{{labels.RtgsTitle}}</h5>
+                <ul class="list-group">
+                    {% for thread in threads %}
+                        <li class="list-group-item">
+                        {% if thread.active %}
+                            {{thread.audience}}-{{thread.time.strftime("%d/%m/%y-%H:%M")}}:{{thread.subject}} 
+                        {% else %}
+                            <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}&thread_id={{str(thread.id)}}" 
+                            {% if thread.unread %} <b> {% endif %}
+                            {{thread.audience}}-{{thread.time.strftime("%d/%m/%y-%H:%M")}}:{{thread.subject}} 
+                            {% if thread.unread %} </b> {% endif %}                            
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                {% if not activethr.new %}
+                    <div>
+                        <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.name}}&thread_id=0">{{labels.NewMsg}}</a>
+                    </div>
+                {% endif %}
+            </div>    
+            <div class="col-xl-8">
+
+<!-- ACTIVE THREAD -->
+                <div class="magnifier">
+                    <h4 onclick='showOnModal()'  title={{labels.ZoomTitle}}>+</h4>
+                </div>
+ <!-- audience selector -->
+                <div class='aud-selector p-1 pl-3'>
+                    <div class="row">
+                        <div class="col-xl-2">
+                            <h6>{{labels.RcptsTitle}}</h6>
+                        </div>
+                        <div class="col-xl-10">
+                            <div class="tags-list">
+                                {{activethr.audience|join(", ")}}
+                            </div>
+                            <a id='toggle-aud-slct' class='akv-link text-sm' onclick='displaySlcts()'>{{labels.ToggleAddRmRcpt}}</a>
+                            <div id='aud-selectors' style='display:none; border:1px groove;'>
+                                <div class="m-2">
+                                    <form id="aud-add" action="/add_audience" method="POST">
+
+                                     <!-- hidden inputs -->
+                                        <input type='hidden' name='otype' value={{obj.type}}>
+                                        <input type='hidden' name='oid' value={{obj.oid}}>
+                                        <input type='hidden' name='thread_id' value={{activethr._id}}>
+                                        
+                                        <div class='input-group'>
+                                            <select name='slct-aud' id='slct-aud' class='form-control text-sm'>
+                                                {% for person in activethr.authorized_users %}
+                                                    <option value={{person}}>{{person}}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <input type='submit' form='aud-add' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value={{labels.AddRcpt"}}/>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="m-2">
+                                    <form id="aud-del" action="/del_audience" method="POST">
+
+                                     <!-- hidden inputs -->
+                                        <input type='hidden' name='otype' value={{obj.type}}>
+                                        <input type='hidden' name='oid' value={{obj.oid}}>
+                                        <input type='hidden' name='thread_id' value={{activethr._id}}>
+                                        
+                                        <div class='input-group'>
+                                            <select name='slct-aud' id='slct-aud' class='form-control text-sm'>
+                                                {% for person in activethr.audience %}
+                                                    <option value={{person}}>{{person}}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <input type='submit' form='aud-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value={{labels.RmRcpt"}}/>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+                            <!-- tags section -->                    
+                        </div>
+                    </div>
+                </div>            
+                <div class='tag-display aud-selector p1 pl-3'>                
+                    <div class="row">
+                        <div class='col-xl-2'>
+                            <h6>{{labels.TagsTitle}}</h6>
+                        </div>
+                        <div class="col-xl-10">
+                            {{activethr.tagslist|join(", ")}}
+                        </div>
+                    </div>
+                    <a id='toggle-tag-slct' class='akv-link text-sm' onclick='displaySlcts_tags()'>{{labels.ToggleAddRmTags}}</a>
+                    <div id='tag-selectors' style='display:none; border:1px groove;'>
+                        <div class='m-2'>
+                            <form id="tag-add" action="/add_tag" method="POST">
+                            <!-- hidden inputs -->
+                               <input type='hidden' name='otype' value={{obj.type}}>
+                               <input type='hidden' name='oid' value={{obj.oid}}>
+                               <input type='hidden' name='thread_id' value={{activethr._id}}>
+                                
+                                <div class='input-group-append'>
+                                    <input type="text" id="tagname" name="tagname" onkeyup="filterFunct({{activethr.obj-list}},'tagname')" placeholder="{{labels.AddTagPlc}}"  autocomplete="off"/>
+                                    <input type="hidden" id="tagid" name="tagid" />
+                                    <input type='submit' id='tag-submit' form='tag-add' class='btn-aksiyon' value='{{labels.AddTag}}'>
+                                </div>
+                                <div id= "obj-list" class="obj-list">
+                                </div>
+                            </form>
+                        </div>
+                        <div class='m-2'>
+                            <form id="tag-del" action="/del_tag" method="POST">
+                            <!-- hidden inputs -->
+                               <input type='hidden' name='otype' value={{obj.type}}>
+                               <input type='hidden' name='oid' value={{obj.oid}}>
+                               <input type='hidden' name='thread_id' value={{activethr._id}}>
+                                
+                                <div class='input-group-append'>
+                                    <select name='slct-del-tag' id='slct-del-tag' class='form-control text-sm'>
+                                        {% for tag in activethr.tagslist %}
+                                            {% if tag.id != [obj.type, obj.oid] %}
+                                                <option value="{{tag}}">{{tag.name}}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <input type='submit' form='tag-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value='{{labels.RmTag}}'/>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+
