@@ -10,7 +10,7 @@ COonfiguration Parameters and Constants
 """
 
 USER_EMAIL = "crmdamin@sekom.com.tr"
-LANG = "en"
+LANG = "tr"
 MONGO_CONN_STRING = None #localhost
 
 EMAIL_INTEGRATED = False

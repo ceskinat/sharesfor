@@ -10,7 +10,7 @@ Created on Tue Feb  1 07:08:59 2022
 # f = open('config.json')
 # configurations = json.load(f)
 
-from sampleintfcs import object_name, all_users
+from sampleintfcs import object_name, all_users, authorized_users
 from config import LANG, MONGO_CONN_STRING, EMAIL_SENDER_ACC, EMAIL_SENDER_PWD, EMAIL_INTEGRATED, MODAL_DISPLAY, S4S4_BASE
 
 from datetime import datetime
@@ -55,7 +55,68 @@ def xlate_msg(msg_id, lang):
 
     return LABELS_MSGS.get(msg_id).get(lang)
 
+def get_all_labels(lang):
+    db = client.routeX
+    return {x["label"]: x["output"][lang] for x in db.labels.find()}
 
+    
+def get_threads(otype, oid):
+    db = client.routeX
+    threads = []
+    for rtg in db.routings.find({"obj_type": otype,
+                                 "obj_id": oid}):
+        # lists added for simpler display
+        rtg["tagslist"] = [x["name"] for x in rtg["tags"]]
+        rtg["audlist"] = [x["name"] for x in rtg["audience"]]
+        threads.append(rtg)
+    return threads
+
+def make_new_thread(rqform, user):
+    # creates an active thread object for a new thread (id="0") 
+    if not rqform.get("audience"):
+        audience = [{"id": user["userid"], "name": user["username"], "email": user["email"]}] # include the user to audience in new threads
+    else:
+        audience = json.loads(rqform["audience"])
+
+    if not rqform.get("tags"):
+        tags = [{"id": [rqform["otype"], rqform["oid"]],
+                 "name": object_name(rqform["otype"], rqform["oid"])}]
+    else:
+        tags = json.loads(rqform["tags"])
+        
+    
+    activethr = {"_id": "0",
+                 "new": True,
+                 "audience": audience,
+                 "audlist": [x["name"] for x in audience],
+                 "tags": tags,
+                 "tagslist": [x["name"] for x in tags],
+                 "authorized_users": authorized_users(rqform["otype"], rqform["oid"]),
+                 "user": user
+                 }
+    print(activethr)
+    return activethr    
+
+def json_dumps(thread):
+    # json.dumps audience and tag fields for proper json exchange
+    thread["audary"] = thread["audience"]
+    thread["tagary"] = thread["tags"]
+    thread["audience"] = json.dumps(thread["audience"])
+    thread["tags"] = json.dumps(thread["tags"])
+    return thread
+
+
+def get_active_thread(thread_id):
+    db = client.routeX
+    thread = db.routings.find_one({"_id": ObjectId(thread_id)})
+    
+    # lists added for simpler display
+    thread["tagslist"] = [x["name"] for x in thread["tags"]]
+    thread["audlist"] = [x["name"] for x in thread["audience"]]
+    
+    # thread["authorized_users"] = [x["username"] for x in all_users()]
+    thread["authorized_users"] = authorized_users(thread["obj_type"], thread["obj_id"])
+    return thread
 
 """ display_routing and related functions """
 
@@ -494,15 +555,18 @@ def file_response(file_id, file_name):
 
 def create_rt_thread(otype, oid, thr_params, message, rq_files):
     db = client.routeX
-    thr_params["audience"] = aud_str2ary(thr_params["audience"])
-    thr_params["tags"] = json.loads(thr_params["tags"])
-    if thr_params["user"] not in thr_params["audience"]:
-        print("2: ", thr_params["audience"])
-        thr_params["audience"].append(thr_params["user"])
+    # These parts are handled in make_new_thread
+    # thr_params["audience"] = aud_str2ary(thr_params["audience"])
+    # thr_params["tags"] = json.loads(thr_params["tags"])
 
-    unread = thr_params["audience"][:] # assign by value
-    if thr_params["user"] in unread:
-        unread.remove(thr_params["user"])
+    # if thr_params["user"] not in thr_params["audience"]:
+    #     print("2: ", thr_params["audience"])
+    #     thr_params["audience"].append(thr_params["user"])
+
+    # unread = thr_params["audience"][:] # assign by value
+    unread = [x["id"] for x in thr_params["audience"]]
+    if thr_params["user"]["userid"] in unread:
+        unread.remove(thr_params["user"]["userid"])
    
     
     name = object_name(otype, oid)
@@ -538,7 +602,7 @@ def create_rt_thread(otype, oid, thr_params, message, rq_files):
                                       "messages": [msg]})
             
         if res.acknowledged:
-            thr_params["thread_id"] = res.inserted_id
+            thr_params["_id"] = res.inserted_id
         else: 
             thr_params["exc_ID"] = "CrThrFail"
     except:
@@ -557,13 +621,13 @@ def add_rt_message(thr_params, user, message, rq_files, source):
 
     db = client.routeX
     try: 
-        th = db.routings.find_one({"_id": ObjectId(thr_params["thread_id"])})
+        th = db.routings.find_one({"_id": ObjectId(thr_params["_id"])})
         if user not in th["audience"]:
             print("3: ", th["audience"])
             th["audience"].append(user)
-        unread = th["audience"][:]
-        if user in unread:
-            unread.remove(user)
+        unread = [x["id"] for x in th["audience"]]
+        if user["userid"] in unread:
+            unread.remove(user["userid"])
     
         msg = {"user": user,
                 "message": message,
@@ -598,7 +662,7 @@ def add_rt_message(thr_params, user, message, rq_files, source):
 def remove_from_unread(thread_id, user):
     db = client.routeX
     db.routings.update_one({"_id": thread_id},
-                           {"$pull": {"unread": user}})
+                           {"$pull": {"unread": user["id"]}})
 
 
 def rtg_list(user):
@@ -639,7 +703,7 @@ from bson import ObjectId
 def aud_str2ary(audstr):
     return audstr.replace("[","").replace("]","").replace("'", "").split(",") # convert str - list
        
-def add_audience_rtg(thr_params, aud):
+def add_audience_rtg(thr, aud):
     # dbli = client.linkedin
     # if aud in dbli.cclists.distinct("BU"):
     #     new_aud = []
@@ -649,73 +713,64 @@ def add_audience_rtg(thr_params, aud):
     #                                   }):
     #         new_aud.append(prs["email"])
     # else:
-    new_aud = [aud]
+    # new_aud = [aud]
         
         
-    if thr_params["thread_id"] == "0":  #new thread
-        thr_params["audience"] = aud_str2ary(thr_params["audience"])
-
-        for n in new_aud:
-            if n not in thr_params["audience"]:
-                print("4: ", thr_params["audience"] )
-                thr_params["audience"].append(n)
-            else:
-                pass
-                # return error
-
-        # thread = {"thread_id": "0",
-        #           "audience": old_aud,
-        #           "user": user}
-        thr_params["tags"] = json.loads(thr_params["tags"]) #convert string to json here
-                  
-    else:
+    if aud not in thr["audience"]:
+        # print("4: ", thr_params["audience"] )
+        thr["audience"].append(aud)
+    if thr["_id"] != "0":  #new thread
 
         db = client.routeX
-        thr_params["thread_id"] = ObjectId(thr_params["thread_id"])
         # if db.routings.find_one({"_id": ObjectId(thread_id),
         #                          "audience": new_aud}):
         #     pass 
         # # return error
-        doc = db.routings.find_one({"_id": thr_params["thread_id"]})
+        doc = db.routings.find_one({"_id": thr["_id"]})
         if doc: 
-            old_aud = doc.get("audience")
-            old_unread = doc.get("unread")
-            if not old_unread:
-                old_unread = []
+            old_aud = doc.get("audience", [])
+            old_unread = doc.get("unread", [])
         else: 
             old_aud = []            
             old_unread = []
             # should actually return error
             
-        for n in new_aud:
-            if n not in old_aud:
-                old_aud.append(n)
-            if n not in old_unread:
-                old_unread.append(n)
+        if aud not in old_aud:
+            old_aud.append(aud)
+        if aud not in old_unread:
+            old_unread.append(aud)
         
         try:
-            result = db.routings.update_one({"_id": thr_params["thread_id"]},
+            result = db.routings.update_one({"_id": thr["_id"]},
                                             {"$set": {"audience": old_aud, "unread": old_unread}})
             if result.matched_count == 0:
-                thr_params["exc_ID"] = "AudAddFail"
+                thr["exc_ID"] = "AudAddFail"
         except: 
-                thr_params["exc_ID"] = "AudAddFail"
+                thr["exc_ID"] = "AudAddFail"
         # thr_params = {"thread_id": ObjectId(thread_id),
         #           "user": user}
-    return thr_params
+    return thr
 
 
-def del_audience_rtg(thr_params, aud):
-    try:
-        db = client.routeX
-        res = db.routings.update_one({"_id": ObjectId(thr_params["thread_id"])},
-                                     {"$pull": {"audience": aud, "unread": aud}})
-        if res.matched_count == 0: 
-            thr_params["exc_ID"] = "AudDelFail"
-    except:
-        thr_params["exc_ID"] = "AudDelFail"
+def del_audience_rtg(thread, aud):
+    """ 
+    audience format is: [{id: person_id1, name: person_name1}, ....]
+    aud contains the person_id of the person to be deleted
+    """
+    new_aud = [d for d in thread["audience"] if d["id"] != aud]
+    thread["audience"] = new_aud
+    thread["audlist"] = [x["name"] for x in new_aud]
+    if thread["_id"] != 0:
+        try:
+            db = client.routeX
+            res = db.routings.update_one({"_id": ObjectId(thread["_id"])},
+                                         {"$pull": {"audience.id": aud, "unread": aud}})
+            if res.matched_count == 0: 
+                thread["exc_ID"] = "AudDelFail"
+        except:
+            thread["exc_ID"] = "AudDelFail"
         
-    return thr_params
+    return thread
     
     
 """ add remove tag functions """
