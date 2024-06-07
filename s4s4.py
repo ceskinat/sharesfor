@@ -391,49 +391,76 @@ def del_audience():
 from routings import add_tag_rtg, del_tag_rtg
 @app.route('/add_tag', methods = [ "POST"])
 def add_tag():
-    thr_list = True
-    if request.form.get("activeonly"):
-        thr_list = False
+    # thr_list = True
+    # if request.form.get("activeonly"):
+    #     thr_list = False
 
 
-    thr_params = {"thread_id": request.form["thread_id"]}
-    thr_params["user"] = session["user"]["username"]
-    
-    if thr_params["thread_id"] == "0":
-        thr_params["audience"] = request.form["audience"]
-        thr_params["tags"] = request.form["tags"]
     otype = request.form["otype"]
     oid = request.form["oid"]
-    thr_params = add_tag_rtg(thr_params, request.form["tagid"])
-    rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
-    if MODAL_DISPLAY or not thr_list:
-        return rtg # for modal type display
+    
+    if request.form["thread_id"] == "0":
+        # thr_params["audience"] = request.form["audience"]
+        # thr_params["tags"] = request.form["tags"]
+        activethr = make_new_thread(request.form, session["user"])
     else:
-        return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
+        activethr = get_active_thread(request.form["thread_id"])
+
+
+    activethr = add_tag_rtg(activethr, request.form["tagid"])
+    # rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
+    # if MODAL_DISPLAY or not thr_list:
+    #     return rtg # for modal type display
+    # else:
+    #     return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
+    return render_template('s4s4.html', 
+                           obj={"type": otype,
+                                "oid": oid,
+                                "name": object_name(otype, oid)},
+                           threads=get_threads(otype, oid),
+                           activethr=json_dumps(activethr),
+                           labels=get_all_labels(LANG))
 
 
 @app.route('/del_tag', methods = [ "POST"])
 def del_tag():
-    thr_list = True
-    if request.form.get("activeonly"):
-        thr_list = False
-        print("Activeonly received")
+    # thr_list = True
+    # if request.form.get("activeonly"):
+    #     thr_list = False
+    #     print("Activeonly received")
 
     
-    thr_params = {"thread_id": request.form["thread_id"]}
-    thr_params["user"] = session["user"]["username"]
+    # thr_params = {"thread_id": request.form["thread_id"]}
+    # thr_params["user"] = session["user"]["username"]
     
-    if thr_params["thread_id"] == "0":
-        thr_params["audience"] = request.form["audience"]
-        thr_params["tags"] = request.form["tags"]        
+    # if thr_params["thread_id"] == "0":
+    #     thr_params["audience"] = request.form["audience"]
+    #     thr_params["tags"] = request.form["tags"]        
     otype = request.form["otype"]
     oid = request.form["oid"]
-    thr_params = del_tag_rtg(thr_params, request.form["slct-del-tag"])
-    rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
-    if MODAL_DISPLAY or not thr_list:
-        return rtg # for modal type display
+    otype = request.form["otype"]
+    oid = request.form["oid"]
+    
+    if request.form["thread_id"] == "0":
+        # thr_params["audience"] = request.form["audience"]
+        # thr_params["tags"] = request.form["tags"]
+        activethr = make_new_thread(request.form, session["user"])
     else:
-        return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
+        activethr = get_active_thread(request.form["thread_id"])
+    print(request.form["slct-del-tag"])
+    activethr = del_tag_rtg(activethr, request.form["slct-del-tag"])
+    # rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
+    # if MODAL_DISPLAY or not thr_list:
+    #     return rtg # for modal type display
+    # else:
+    #     return render_template('routing_form.html', objroutings=rtg, otype=otype, oid=oid) #, thread_id=thread["thread_id"])
+    return render_template('s4s4.html', 
+                           obj={"type": otype,
+                                "oid": oid,
+                                "name": object_name(otype, oid)},
+                           threads=get_threads(otype, oid),
+                           activethr=json_dumps(activethr),
+                           labels=get_all_labels(LANG))
 
     
 

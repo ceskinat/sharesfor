@@ -358,11 +358,11 @@
                                     
                                     <div class='input-group-append'>
                                         <select name='slct-del-tag' id='slct-del-tag' class='form-control text-sm'>
-                                            {% for tag in activethr.tagslist %}
-                                                {% if tag.id != [obj.type, obj.oid] %}
-                                                    <option value="{{tag}}">{{tag.name}}</option>
+                                            {% for tag in activethr.tagary %}
+                                                {% if tag.tag.id != [obj.type, obj.oid] %}
+                                                    <option value='{{tag.tagidstr|safe}}'>{{tag.tag.name}}</option>
                                                 {% endif %}
-                                            {% endfor %}
+                                            {% endfor %}    
                                         </select>
                                         <input type='submit' form='tag-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value='{{labels.RmTag}}'/>
                                     </div>

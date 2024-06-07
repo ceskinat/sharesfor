@@ -100,7 +100,7 @@ def make_new_thread(rqform, user):
 def json_dumps(thread):
     # json.dumps audience and tag fields for proper json exchange
     thread["audary"] = thread["audience"]
-    thread["tagary"] = thread["tags"]
+    thread["tagary"] = [{"tag": x, "tagidstr": json.dumps(x)} for x in thread["tags"]]
     thread["audience"] = json.dumps(thread["audience"])
     thread["tags"] = json.dumps(thread["tags"])
     return thread
@@ -662,7 +662,7 @@ def add_rt_message(thr_params, user, message, rq_files, source):
 def remove_from_unread(thread_id, user):
     db = client.routeX
     db.routings.update_one({"_id": thread_id},
-                           {"$pull": {"unread": user["id"]}})
+                           {"$pull": {"unread": user["userid"]}})
 
 
 def rtg_list(user):
@@ -776,15 +776,16 @@ def del_audience_rtg(thread, aud):
 """ add remove tag functions """
 def add_tag_rtg(thr_params, added_tagstr):
 
-    if thr_params["thread_id"] == "0":
+    # thr_params["tags"] = json.loads(thr_params["tags"])
+    thr_params["tags"].append(json.loads(added_tagstr))
+    thr_params["tagslist"] = [x["name"] for x in thr_params["tags"]]
 
-        thr_params["tags"] = json.loads(thr_params["tags"])
-        thr_params["tags"].append(json.loads(added_tagstr))
+    if thr_params["_id"] != "0":
 
-        if type(thr_params["audience"]) == str: # convert the audience parameter as well
-            thr_params["audience"] = aud_str2ary(thr_params["audience"])
-    else:
-        thr_params["thread_id"] = ObjectId(thr_params["thread_id"])
+ 
+        # if type(thr_params["audience"]) == str: # convert the audience parameter as well
+        #     thr_params["audience"] = aud_str2ary(thr_params["audience"])
+        thr_params["thread_id"] = ObjectId(thr_params["_id"])
         try:
             db = client.routeX
             res = db.routings.update_one({"_id": ObjectId(thr_params["thread_id"])},
@@ -794,21 +795,20 @@ def add_tag_rtg(thr_params, added_tagstr):
         except:
             thr_params["exc_ID"] = "TagAddFail"
             
-
     return thr_params
 
 
 def del_tag_rtg(thr_params, del_tagstr):
 
-    if thr_params["thread_id"] == "0":
 
-        thr_params["tags"] = json.loads(thr_params["tags"])
-        thr_params["tags"].remove(json.loads(del_tagstr))
+        # thr_params["tags"] = json.loads(thr_params["tags"])
+    thr_params["tags"].remove(json.loads(del_tagstr))
+    thr_params["tagslist"] = [x["name"] for x in thr_params["tags"]]
 
-        if type(thr_params["audience"]) == str: # convert the audience parameter as well
-            thr_params["audience"] = aud_str2ary(thr_params["audience"])
-    else:
-        thr_params["thread_id"] = ObjectId(thr_params["thread_id"])
+        # if type(thr_params["audience"]) == str: # convert the audience parameter as well
+        #     thr_params["audience"] = aud_str2ary(thr_params["audience"])
+    if thr_params["_id"] != "0":
+        thr_params["thread_id"] = ObjectId(thr_params["_id"])
         try:
             db = client.routeX
             res = db.routings.update_one({"_id": ObjectId(thr_params["thread_id"])},
