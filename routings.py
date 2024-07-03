@@ -63,8 +63,9 @@ def get_all_labels(lang):
 def get_threads(otype, oid):
     db = client.routeX
     threads = []
-    for rtg in db.routings.find({"obj_type": otype,
-                                 "obj_id": oid}):
+    # for rtg in db.routings.find({"obj_type": otype,
+    #                              "obj_id": oid}):
+    for rtg in db.routings.find({"tags.id": [otype, oid]}):
         # lists added for simpler display
         rtg["tagslist"] = [x["name"] for x in rtg["tags"]]
         rtg["audlist"] = [x["name"] for x in rtg["audience"]]
@@ -875,7 +876,7 @@ def object_list_html(inp):
 #        body += "<input class='hidden' id='type' value=" + item["type"]
         # body += "<input type='hidden' id='id' value=" + str(item["_id"]) 
         # body += "<option value=" + str(item["_id"]) + " onclick='selectObj()'>" + item["name"] + "</option>"
-        obj_id_str = json.dumps({"id": [item["otype"], item["oid"]], "name": item["oname"]})
+        obj_id_str = json.dumps({"id": [item["otype"], str(item["oid"])], "name": item["oname"]})
         body += "<option value='" + obj_id_str + "'>" + item["otype"] +":" + item["oname"] + "</option>"
         # body += "</p>"
     body += "</select></div>"
