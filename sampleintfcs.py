@@ -26,15 +26,20 @@ import re
 def object_list(inp):
     # returns a sample list of objects
     db = client.routeX_demo
-    lst = list(db.objects.find({"oname": re.compile(inp, re.I)}))
+#    lst = list(db.objects.find({"oname": re.compile(inp, re.I)}))
+    lst = []
+    for obj in db.objects.find({"oname": re.compile(inp, re.I)}):
+        lst.append({"id": {"id": [obj["otype"], str(obj["oid"])], "name": obj["oname"]},
+                    "name": obj["otype"] + ":" + obj["oname"]})
+
 
     return lst
 
 
 def object_name(otype, oid):
     for obj in object_list(""):
-        if obj["otype"] == otype and str(obj["oid"]) == oid:
-            return obj["oname"]
+        if obj["id"]["id"][0] == otype and str(obj["id"]["id"][1]) == oid:
+            return obj["id"]["name"]
     return None
 
 

@@ -407,7 +407,7 @@ def add_tag():
         activethr = get_active_thread(request.form["thread_id"])
 
 
-    activethr = add_tag_rtg(activethr, request.form["tagid"])
+    activethr = add_tag_rtg(activethr, request.form["obj_id"])
     # rtg = display_routing(otype, rtg_object_id(oid), thr_params, thr_list)
     # if MODAL_DISPLAY or not thr_list:
     #     return rtg # for modal type display
@@ -466,8 +466,10 @@ def del_tag():
 
 @app.route('/obj_list', methods=["POST"])
 def obj_list():
-    from routings import object_list_html
-    return object_list_html(request.form.get("name"))
+    from sampleintfcs import object_list
+#    from routings import object_list_html
+#    return object_list_html(request.form.get("name"))
+    return json.dumps(object_list(request.form.get("name")))
 
 
 from routings import file_response

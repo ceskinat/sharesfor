@@ -27,9 +27,8 @@
         });
     };
 */
-
+/*
     function filterFunct(divId, inpId) {
-    /* displays the account list on a given div, query performed on data typed on given inp */
         var fd = new FormData();
         fd.append("name", $("#" + inpId).val());
         
@@ -56,6 +55,7 @@
     function selectObj() {
         $("#tag").val($(event.target).text())
     }
+*/
 /*    function displaySlcts() {
         $("#aud-selectors").toggle()
         if ($("#aud-selectors").css("display") === "none"){
@@ -337,13 +337,21 @@
                                    <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
                                    <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
                                     
+                                    {% set btn_content=labels.AddTag %}
+                                    {% set list_url="obj_list" %}
+                                    {% include "listtemplate.html" %}
+    
+
+     <!--                               
                                     <div class='input-group-append'>
                                         <input type="text" id="tagname" name="tagname" onkeyup="filterFunct('obj-list','tagname')" placeholder="{{labels.AddTagPlc}}"  autocomplete="off"/>
                                         <input type="hidden" id="tagid" name="tagid" />
                                         <input type='submit' id='tag-submit' form='tag-add' class='btn-aksiyon' value='{{labels.AddTag}}'>
                                     </div>
+        
                                     <div id= "obj-list" class="obj-list">
                                     </div>
+    -->
                                 </form>
                             </div>
                             <div class='m-2'>
