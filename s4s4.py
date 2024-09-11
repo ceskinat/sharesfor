@@ -8,7 +8,8 @@ Created on Wed Sep 14 113:40 2022
 
 from flask import Flask, render_template, request, session, redirect, url_for, send_file, abort
 
-from sampleintfcs import object_list, object_name, authorized_users
+# from sampleintfcs import object_list, object_name, authorized_users
+from cp_interfaces import object_list, object_name, authorized_users
 # from config import session["user"]["username"]# from demopageintfcs import object_list, session["user"]["username"]
 
 from config import MODAL_DISPLAY
@@ -466,10 +467,10 @@ def del_tag():
 
 @app.route('/obj_list', methods=["POST"])
 def obj_list():
-    from sampleintfcs import object_list
+#    from sampleintfcs import object_list
 #    from routings import object_list_html
 #    return object_list_html(request.form.get("name"))
-    return json.dumps(object_list(request.form.get("name")))
+    return json.dumps(object_list(request.form.get("name"), session["user"]))
 
 
 from routings import file_response

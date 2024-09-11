@@ -10,7 +10,8 @@ Created on Tue Feb  1 07:08:59 2022
 # f = open('config.json')
 # configurations = json.load(f)
 
-from sampleintfcs import object_name, all_users, authorized_users
+#from sampleintfcs import object_name, all_users, authorized_users
+from cp_interfaces import object_name, authorized_users
 from config import LANG, MONGO_CONN_STRING, EMAIL_SENDER_ACC, EMAIL_SENDER_PWD, EMAIL_INTEGRATED, MODAL_DISPLAY, S4S4_BASE
 
 from datetime import datetime
@@ -860,7 +861,7 @@ def pop_emails(thread, message, user):
 
     
 def object_list_html(inp):
-    from sampleintfcs import object_list
+#    from sampleintfcs import object_list
 
     body = "<div>"
     # lst = list(db.lgm_accounts.find({"name": re.compile(inp, re.I)}))

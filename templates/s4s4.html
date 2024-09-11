@@ -283,7 +283,7 @@
                                             <div class='input-group'>
                                                 <select name='slct-aud' id='slct-aud' class='form-control text-sm'>
                                                     {% for person in activethr.authorized_users %}
-                                                        <option value={{person.id}}||{{person.name}}||{{person.email}}>{{person.name}}</option>
+                                                        <option value='{{person.id}}||{{person.name}}||{{person.email}}'>{{person.name}}</option>
                                                     {% endfor %}
                                                 </select>
                                                 <input type='submit' form='aud-add' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value="{{labels.AddRcpt}}"/>
@@ -339,6 +339,7 @@
                                     
                                     {% set btn_content=labels.AddTag %}
                                     {% set list_url="obj_list" %}
+                                    {% set obj_placeholder=labels.AddTagPlc %}
                                     {% include "listtemplate.html" %}
     
 
