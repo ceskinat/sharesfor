@@ -25,23 +25,6 @@ from email.mime.multipart import MIMEMultipart
 
 import json
 
-def display_exception(exc_ID, lang):
-    db = client.routeX
-    
-    body = "<div class='exc-display'>"    
-    
-    doc = db.exceptions.find_one({"exc_ID": exc_ID,
-                                  "lang": lang})
-    if not doc: #exception undefined
-        doc = db.exceptions.find_one({"exc_ID": "EnD",
-                                          "lang": lang})
-    if not doc: 
-        doc = {"mesage": "Exceptions not Properly Defined"}
-    
-    body += doc["message"]
-    body += "</div>"
-    
-    return body
 
 """ multilang section """
 LABELS_MSGS = {} # read once from database; then serve from memory
@@ -62,10 +45,12 @@ def get_all_labels(lang):
 
     
 def get_threads(otype, oid):
+# returns the message threads belonging to a certain object
     db = client.routeX
     threads = []
     # for rtg in db.routings.find({"obj_type": otype,
     #                              "obj_id": oid}):
+    # return all threads that the object is tagged
     for rtg in db.routings.find({"tags.id": [otype, oid]}):
         # lists added for simpler display
         rtg["tagslist"] = [x["name"] for x in rtg["tags"]]
@@ -109,6 +94,7 @@ def json_dumps(thread):
 
 
 def get_active_thread(thread_id):
+# retrieves a thread from db and creates fileds required to display the thread 
     db = client.routeX
     thread = db.routings.find_one({"_id": ObjectId(thread_id)})
     
@@ -128,6 +114,7 @@ import os
 UPLOADS_FOLDER = "uploads/"
 
 def handle_attachment(rq_files):
+# uses gridfs to store the attachment 
     file = rq_files.get("file")
     if not file or not file.filename: # no file selected
         return None
@@ -157,6 +144,7 @@ def file_response(file_id, file_name):
 
 
 def create_rt_thread(otype, oid, thr_params, message, rq_files):
+#creates a new message thread (in DB) and returns the thread id (or exception code)
     db = client.routeX
     unread = [x["id"] for x in thr_params["audience"]]
     if thr_params["user"]["userid"] in unread:
@@ -202,6 +190,7 @@ def create_rt_thread(otype, oid, thr_params, message, rq_files):
 
 def add_rt_message(thr_params, user, message, rq_files, source):
     # add to existing thread
+    # source can be either sharesfor or email replies
 
     db = client.routeX
     try: 
@@ -244,61 +233,28 @@ def add_rt_message(thr_params, user, message, rq_files, source):
         
         
 def remove_from_unread(thread_id, user):
+# remove the useer from unread list
     db = client.routeX
     db.routings.update_one({"_id": thread_id},
                            {"$pull": {"unread": user["userid"]}})
 
 
-def rtg_list(user):
-    db = client.routeX
-    body= ""
-    if db.routings.count_documents({"audience": user}) == 0:
-        body = "Yazışmanız bulunmuyor"
-    else:
-        for thread in db.routings.aggregate([{"$match": {"audience": user}},
-                                              {"$addFields": {"lastm": {"$last": "$messages"}}},
-                                              {"$sort": {"lastm.time": -1}}]):    
-    
-            if MODAL_DISPLAY:
-                body += '<div class="rtg-list-item p-2"><a class="rtg-link" href="#"'
-                click  = 'showRouting("'  + thread["obj_type"] + '","' + str(thread["obj_id"]) + '","' + str(thread["_id"]) + '")'
-                body += " onclick='" + click + "'>" 
-            else:
-                body += "<div><a class='akv-link' href='/routing_form?otype=" + thread["obj_type"] + "&oid=" + str(thread["obj_id"]) + "&thread_id=" + str(thread["_id"]) + "'>" 
-
-                                                                                                                                                          
-                # body += "<div><a class='akv-link' href='#' onclick='" + click + "'>Yeni Yorum/Paylaşım</a></div>" 
-    
-    
-            if thread.get("unread") and user in thread.get("unread"):
-                body += "<b>"
-            body += "<span class='rtg-list-title'>" +  thread["lastm"]["time"].strftime("%d/%m/%y") + " " + aud_list(thread["audience"]) + "</span>"
-            if thread["obj_name"]:
-                body += " " + thread["obj_name"] 
-            body += ":" + thread["lastm"]["message"][:50]
-            if thread.get("unread") and user in thread.get("unread"):
-                body += "<b>"
-            body += "</a></div>"
-       
-    return body
 
 from bson import ObjectId
 
 def aud_str2ary(audstr):
+# returns a list from a string containing a list
     return audstr.replace("[","").replace("]","").replace("'", "").split(",") # convert str - list
        
 def add_audience_rtg(thr, aud):
-        
+# add audience to a thread     
+# the aud parameter is in {id, name, email} dict format   
         
     if aud not in thr["audience"]:
         thr["audience"].append(aud)
     if thr["_id"] != "0":  #new thread
 
         db = client.routeX
-        # if db.routings.find_one({"_id": ObjectId(thread_id),
-        #                          "audience": new_aud}):
-        #     pass 
-        # # return error
         doc = db.routings.find_one({"_id": thr["_id"]})
         if doc: 
             old_aud = doc.get("audience", [])
@@ -345,17 +301,19 @@ def del_audience_rtg(thread, aud):
     
     
 """ add remove tag functions """
-def add_tag_rtg(thr_params, added_tagstr):
+""" tag format as on DB
 
-    # thr_params["tags"] = json.loads(thr_params["tags"])
+    [{"id": [<object_type>, <object_id>],
+      "name": <object_name>}]
+"""
+
+def add_tag_rtg(thr_params, added_tagstr):
+# add a tag (object) to an existing or new (id="0") thread 
     thr_params["tags"].append(json.loads(added_tagstr))
     thr_params["tagslist"] = [x["name"] for x in thr_params["tags"]]
 
     if thr_params["_id"] != "0":
 
- 
-        # if type(thr_params["audience"]) == str: # convert the audience parameter as well
-        #     thr_params["audience"] = aud_str2ary(thr_params["audience"])
         thr_params["thread_id"] = ObjectId(thr_params["_id"])
         try:
             db = client.routeX
@@ -370,14 +328,11 @@ def add_tag_rtg(thr_params, added_tagstr):
 
 
 def del_tag_rtg(thr_params, del_tagstr):
+# delete a tag from a new or existing thread
 
-
-        # thr_params["tags"] = json.loads(thr_params["tags"])
     thr_params["tags"].remove(json.loads(del_tagstr))
     thr_params["tagslist"] = [x["name"] for x in thr_params["tags"]]
 
-        # if type(thr_params["audience"]) == str: # convert the audience parameter as well
-        #     thr_params["audience"] = aud_str2ary(thr_params["audience"])
     if thr_params["_id"] != "0":
         thr_params["thread_id"] = ObjectId(thr_params["_id"])
         try:
@@ -428,20 +383,5 @@ def pop_emails(thread, message, user):
 
 
 
-    
-def object_list_html(inp):
-
-    body = "<div>"
-    lst = object_list(inp)
-    if len(lst) > 10:
-        size = 10
-    else:
-        size = len(lst)
-    body += "<select id='slct-obj' onclick='selectTag()' size=" + str(size) + ">"
-    for item in lst:
-        obj_id_str = json.dumps({"id": [item["otype"], str(item["oid"])], "name": item["oname"]})
-        body += "<option value='" + obj_id_str + "'>" + item["otype"] +":" + item["oname"] + "</option>"
-    body += "</select></div>"
-    return body
 
        

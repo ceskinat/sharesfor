@@ -1,3 +1,23 @@
+def display_exception(exc_ID, lang):
+    db = client.routeX
+    
+    body = "<div class='exc-display'>"    
+    
+    doc = db.exceptions.find_one({"exc_ID": exc_ID,
+                                  "lang": lang})
+    if not doc: #exception undefined
+        doc = db.exceptions.find_one({"exc_ID": "EnD",
+                                          "lang": lang})
+    if not doc: 
+        doc = {"mesage": "Exceptions not Properly Defined"}
+    
+    body += doc["message"]
+    body += "</div>"
+    
+    return body
+
+
+
 """ display_routing and related functions """
 
 def display_obj_summary(otype, oid):
@@ -395,5 +415,55 @@ def display_routing(otype, oid, thread, thr_list):
         body += "</div>" # column
         body += "</div>" # row
     
+    return body
+
+def rtg_list(user):
+    db = client.routeX
+    body= ""
+    if db.routings.count_documents({"audience": user}) == 0:
+        body = "Yazışmanız bulunmuyor"
+    else:
+        for thread in db.routings.aggregate([{"$match": {"audience": user}},
+                                              {"$addFields": {"lastm": {"$last": "$messages"}}},
+                                              {"$sort": {"lastm.time": -1}}]):    
+    
+            if MODAL_DISPLAY:
+                body += '<div class="rtg-list-item p-2"><a class="rtg-link" href="#"'
+                click  = 'showRouting("'  + thread["obj_type"] + '","' + str(thread["obj_id"]) + '","' + str(thread["_id"]) + '")'
+                body += " onclick='" + click + "'>" 
+            else:
+                body += "<div><a class='akv-link' href='/routing_form?otype=" + thread["obj_type"] + "&oid=" + str(thread["obj_id"]) + "&thread_id=" + str(thread["_id"]) + "'>" 
+
+                                                                                                                                                          
+                # body += "<div><a class='akv-link' href='#' onclick='" + click + "'>Yeni Yorum/Paylaşım</a></div>" 
+    
+    
+            if thread.get("unread") and user in thread.get("unread"):
+                body += "<b>"
+            body += "<span class='rtg-list-title'>" +  thread["lastm"]["time"].strftime("%d/%m/%y") + " " + aud_list(thread["audience"]) + "</span>"
+            if thread["obj_name"]:
+                body += " " + thread["obj_name"] 
+            body += ":" + thread["lastm"]["message"][:50]
+            if thread.get("unread") and user in thread.get("unread"):
+                body += "<b>"
+            body += "</a></div>"
+       
+    return body
+
+
+    
+def object_list_html(inp):
+
+    body = "<div>"
+    lst = object_list(inp)
+    if len(lst) > 10:
+        size = 10
+    else:
+        size = len(lst)
+    body += "<select id='slct-obj' onclick='selectTag()' size=" + str(size) + ">"
+    for item in lst:
+        obj_id_str = json.dumps({"id": [item["otype"], str(item["oid"])], "name": item["oname"]})
+        body += "<option value='" + obj_id_str + "'>" + item["otype"] +":" + item["oname"] + "</option>"
+    body += "</select></div>"
     return body
 

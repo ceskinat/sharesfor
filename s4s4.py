@@ -43,7 +43,7 @@ from bson import ObjectId
 
 
 
-from routings import create_rt_thread, add_rt_message, rtg_list, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG
+from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG
 
 @socketio.on('join')
 def on_join(data):
