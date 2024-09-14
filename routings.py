@@ -40,10 +40,27 @@ def xlate_msg(msg_id, lang):
     return LABELS_MSGS.get(msg_id).get(lang)
 
 def get_all_labels(lang):
+# read all labels at once
     db = client.routeX
     return {x["label"]: x["output"][lang] for x in db.labels.find()}
 
-    
+def get_label(label, lang):
+# read a specific label
+    db = client.routeX
+    lbl = db.labels.find_one({"label": label})
+    if lbl:
+        return lbl["output"].get(lang)
+
+def get_error_message(exc_ID, lang):
+# get the exception message in the designated language
+    db = client.routeX
+    msg = db.exceptions.find_one({"exc_ID": exc_ID,
+                                  "lang": lang })
+    if not msg:  # exception not defined
+        msg = db.exceptions.find_one({"exc_ID": "EnD",
+                                      "lang": lang })
+
+        
 def get_threads(otype, oid):
 # returns the message threads belonging to a certain object
     db = client.routeX

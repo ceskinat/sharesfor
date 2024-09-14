@@ -206,3 +206,11 @@ div.magnifier h4 {
 div.magnifier h4:hover {
     cursor: zoom-in;
 }
+
+div.error-display {
+    padding: 30px;
+    text-align: center;
+    text-size: 200%;
+    background-color: lightpink;   
+    width: 50% auto; 
+}

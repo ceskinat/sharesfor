@@ -43,7 +43,7 @@ from bson import ObjectId
 
 
 
-from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG
+from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG, get_label, get_error_message
 
 @socketio.on('join')
 def on_join(data):
@@ -129,6 +129,11 @@ def add_message():
                                     # signed_msg)
         socketio.emit("refresh", to=str(thr_params["_id"]))
 
+    if thr_params.get("exc_ID"):
+        return render_templata('error.html',
+                                errormsg=get_error_message(thr_params["exc_ID"], LANG),
+                                gobackmsg=get_label("ClickBack", LANG))
+
     return render_template('s4s4.html', 
                            obj={"type": otype,
                                 "oid": oid,
@@ -164,6 +169,12 @@ def add_audience():
 
 
     thread = add_audience_rtg(activethr, aud)   
+    if thread.get("exc_ID"):
+        return render_templata('error.html',
+                                errormsg=get_error_message(thread["exc_ID"], LANG),
+                                gobackmsg=get_label("ClickBack", LANG))
+
+
     activethr["authorized_users"] = authorized_users(otype, oid)
 
     # audlist contains only names (to display)
@@ -195,6 +206,11 @@ def del_audience():
         activethr = get_active_thread(thread_id)
 
     thread = del_audience_rtg(activethr, aud)   
+    if thread.get("exc_ID"):
+        return render_templata('error.html',
+                                errormsg=get_error_message(thread["exc_ID"], LANG),
+                                gobackmsg=get_label("ClickBack", LANG))
+
     activethr["authorized_users"] = authorized_users(otype, oid)
     activethr["audlist"] = [x["name"] for x in thread["audience"]] 
     # activethr["audience"] = json.dumps(thread["audience"])
@@ -229,6 +245,12 @@ def add_tag():
 
 
     activethr = add_tag_rtg(activethr, request.form["obj_id"])
+
+    if activethr.get("exc_ID"):
+        return render_templata('error.html',
+                                errormsg=get_error_message(activethr["exc_ID"], LANG),
+                                gobackmsg=get_label("ClickBack", LANG))
+
     return render_template('s4s4.html', 
                            obj={"type": otype,
                                 "oid": oid,
@@ -252,6 +274,13 @@ def del_tag():
         activethr = get_active_thread(request.form["thread_id"])
 
     activethr = del_tag_rtg(activethr, request.form["slct-del-tag"])
+    if activethr.get("exc_ID"):
+        return render_templata('error.html',
+                                errormsg=get_error_message(activethr["exc_ID"], LANG),
+                                gobackmsg=get_label("ClickBack", LANG))
+
+
+
     return render_template('s4s4.html', 
                            obj={"type": otype,
                                 "oid": oid,
@@ -293,6 +322,15 @@ def inject_skin():
     from config import STYLE_SHEET
     return {"style_sheet": STYLE_SHEET}
 
+""" for development tests
+
+@app.route('/error_test', methods=["GET"])
+def test_error():
+    return render_template("error.html", 
+                            errormsg="Bu hatayı görmezden gelemezsiniz",
+                            gobackmsg="Önceki sayfaya dönmek için tıklayınız")
+
+
 @app.route('/json_test', methods=['GET', 'POST'])
 def json_test():
     if request.method == "GET":
@@ -303,7 +341,7 @@ def json_test():
         print(yason)
     return render_template("jsontest.html", yason=json.dumps(yason))
 
-
+"""
 
 if __name__ == '__main__':
     # app.run(debug = True, host = "0.0.0.0", port=5010)
