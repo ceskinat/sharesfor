@@ -51,12 +51,12 @@ def object_list(inp, user):
 
     #lectures
     for lect in db.lectures.find({"course": {"$in": courselist}}):
-        lst.append({"id": {"id": ["oturum", lect["course"] + "&&" + lect["session_no"]], "name": lect["description"]},
+        lst.append({"id": {"id": ["oturum", lect["course"] + "*!*!" + lect["session_no"]], "name": lect["description"]},
                     "name": "oturum" + ":" + lect["description"]})
 
     #titles
     for title in db.titles.find({"course": {"$in": courselist}}):
-        lst.append({"id": {"id": ["başlık", title["course"] + "&&" + title["title"]], "name": title["title"]},
+        lst.append({"id": {"id": ["başlık", title["course"] + "*!*!" + title["title"]], "name": title["title"]},
                     "name": "başlık" + ":" + title["course"] + " " + title["title"]})
 
     return lst
@@ -69,14 +69,14 @@ def object_name(otype, oid):
         if doc:
             return doc["ders_adi"]
     elif otype in ["oturum", "başlık"]:
-        course = oid.split('&&')[0]
+        course = oid.split('*!*!')[0]
         if otype == "oturum":
             doc = db.lectures.find_one({"course": course,
-                                        "session_no": oid.split('&&')[1]})
+                                        "session_no": oid.split('*!*!')[1]})
             if doc:
                 return doc["description"]
         else: # otype == başlık
-            return oid.split('&&')[1]
+            return oid.split('*!*!')[1]
 
 
 
@@ -99,7 +99,7 @@ def authorized_users(otype, oid):
     if otype == "ders":
         course = oid
     elif otype in ["oturum", "başlık"]:
-        course = oid.split('&&')[0]
+        course = oid.split('*!*!')[0]
     else:
         course = ""
 

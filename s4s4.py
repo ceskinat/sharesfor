@@ -71,6 +71,7 @@ def routing_form():
 
         otype = request.args.get("otype")
         oid = str(request.args.get("oid"))
+        print("oid: ", oid)
 
         # thread_id == 0 means new (not yet stored in db) thread
         if request.args.get("thread_id") not in ["0", None]:
