@@ -58,8 +58,8 @@ def on_leave(data):
     print("Left room:", room)
     
 
-def err_return(e):
-    return render_templata('error.html',
+def error_return(e):
+    return render_template('error.html',
                             errormsg=e,
                             gobackmsg=get_label("ClickBack", LANG))
 
@@ -133,8 +133,8 @@ def add_message():
         else:
             action = "add message"
             thread = get_active_thread(request.form["thread_id"])
-            thr_params = add_rt_message(thr_params, 
-                                        session["user"]["username"], 
+            thr_params = add_rt_message(thread, 
+                                        session["user"], 
                                           request.form["message"],
                                           request.files,
                                           "sharesfor")
@@ -142,7 +142,7 @@ def add_message():
             socketio.emit("refresh", to=str(thr_params["_id"]))
 
         if thr_params.get("exc_ID"):
-            return render_templata('error.html',
+            return render_template('error.html',
                                     errormsg=get_error_message(thr_params["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -185,7 +185,7 @@ def add_audience():
 
         thread = add_audience_rtg(activethr, aud)   
         if thread.get("exc_ID"):
-            return render_templata('error.html',
+            return render_template('error.html',
                                     errormsg=get_error_message(thread["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -224,7 +224,7 @@ def del_audience():
 
         thread = del_audience_rtg(activethr, aud)   
         if thread.get("exc_ID"):
-            return render_templata('error.html',
+            return render_template('error.html',
                                     errormsg=get_error_message(thread["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -267,7 +267,7 @@ def add_tag():
         activethr = add_tag_rtg(activethr, request.form["obj_id"])
 
         if activethr.get("exc_ID"):
-            return render_templata('error.html',
+            return render_template('error.html',
                                     errormsg=get_error_message(activethr["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -299,7 +299,7 @@ def del_tag():
 
         activethr = del_tag_rtg(activethr, request.form["slct-del-tag"])
         if activethr.get("exc_ID"):
-            return render_templata('error.html',
+            return render_template('error.html',
                                     errormsg=get_error_message(activethr["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 

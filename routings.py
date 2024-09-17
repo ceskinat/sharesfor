@@ -59,6 +59,7 @@ def get_error_message(exc_ID, lang):
     if not msg:  # exception not defined
         msg = db.exceptions.find_one({"exc_ID": "EnD",
                                       "lang": lang })
+    return msg
 
         
 def get_threads(otype, oid):
@@ -205,13 +206,13 @@ def create_rt_thread(otype, oid, thr_params, message, rq_files):
 
 
 
-def add_rt_message(thr_params, user, message, rq_files, source):
+def add_rt_message(th, user, message, rq_files, source):
     # add to existing thread
     # source can be either sharesfor or email replies
 
     db = client.routeX
     try: 
-        th = db.routings.find_one({"_id": ObjectId(thr_params["_id"])})
+        # th = db.routings.find_one({"_id": ObjectId(thr_params["_id"])})
         if user not in th["audience"]:
             print("3: ", th["audience"])
             th["audience"].append(user)
@@ -230,23 +231,23 @@ def add_rt_message(thr_params, user, message, rq_files, source):
                 if attach:
                     msg["file"] = attach   
                 else:
-                    thr_params["exc_ID"] = "AtchFail"
+                    th["exc_ID"] = "AtchFail"
             except:
-                thr_params["exc_ID"] = "AtchFail"
+                th["exc_ID"] = "AtchFail"
 
         th["messages"].append(msg)
-        res = db.routings.update_one({"_id": thr_params["thread_id"]},
+        res = db.routings.update_one({"_id": th["_id"]},
                                      {"$set": {"audience": th["audience"],
                                                "unread": unread,
                                                "messages": th["messages"]}})    
         if res.matched_count == 0:
-            thr_params["exc_ID"] = "AddMsgFail"
+            th["exc_ID"] = "AddMsgFail"
         elif source != "email" and EMAIL_INTEGRATED: # send emails unless the source of message is already email; avoid duplication
             pop_emails(th, message, user)
-    except:
-        thr_params["exc_ID"] = "AddMsgFail"
+    except Exception as e:
+        th["exc_ID"] = e
 
-    return thr_params
+    return th
         
         
 def remove_from_unread(thread_id, user):
