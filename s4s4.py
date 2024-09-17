@@ -58,90 +58,103 @@ def on_leave(data):
     print("Left room:", room)
     
 
+def err_return(e):
+    return render_templata('error.html',
+                            errormsg=e,
+                            gobackmsg=get_label("ClickBack", LANG))
+
+
+
 @app.route('/routing_form', methods = ["GET", "POST"])
 # main sharesfor route; displays the related objects threads and activethread
 def routing_form():
+    try:
+        if request.method == "GET": # request coming from listed threads
+            action = "display routing" #for logging
 
-    if request.method == "GET": # request coming from listed threads
-        action = "display routing" #for logging
+            # session["user"] comes from the application 
+            if not session.get("user") or not session["user"].get("username"):
+                abort(401)
 
-        # session["user"] comes from the application 
-        if not session.get("user") or not session["user"].get("username"):
-            abort(401)
+            otype = request.args.get("otype")
+            oid = str(request.args.get("oid"))
+            print("oid: ", oid)
 
-        otype = request.args.get("otype")
-        oid = str(request.args.get("oid"))
-        print("oid: ", oid)
+            # thread_id == 0 means new (not yet stored in db) thread
+            if request.args.get("thread_id") not in ["0", None]:
+                active_thr = get_active_thread(request.args.get("thread_id"))
+                # remove user from the unread list since user views this thread 
+                remove_from_unread(active_thr["_id"], session["user"])
+            else: 
+                active_thr = make_new_thread(request.args, session["user"])
+            
+        else: #POST: request from an application
 
-        # thread_id == 0 means new (not yet stored in db) thread
-        if request.args.get("thread_id") not in ["0", None]:
-            active_thr = get_active_thread(request.args.get("thread_id"))
-            # remove user from the unread list since user views this thread 
-            remove_from_unread(active_thr["_id"], session["user"])
-        else: 
-            active_thr = make_new_thread(request.args, session["user"])
-        
-    else: #POST: request from an application
+            # session["user"] comes from the application 
+            session.pop("user", None)
+            session["user"] = {"userid": request.form.get("userid"),
+                               "username": request.form.get("username"),
+                               "email": request.form.get("email")}
 
-        # session["user"] comes from the application 
-        session.pop("user", None)
-        session["user"] = {"userid": request.form.get("userid"),
-                           "username": request.form.get("username"),
-                           "email": request.form.get("email")}
+            otype = request.form.get("otype")
+            oid = str(request.form.get("oid"))
+            # from an application call the new thread is displayed; 
+            # the existing threads are displayed by GET calls
+            active_thr = make_new_thread(request.form, session["user"])
+        return render_template('s4s4.html', 
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(active_thr),
+                               labels=get_all_labels(LANG))
+    except Exception as e:
+        return error_return(e)
 
-        otype = request.form.get("otype")
-        oid = str(request.form.get("oid"))
-        # from an application call the new thread is displayed; 
-        # the existing threads are displayed by GET calls
-        active_thr = make_new_thread(request.form, session["user"])
-    return render_template('s4s4.html', 
-                           obj={"type": otype,
-                                "oid": oid,
-                                "name": object_name(otype, oid)},
-                           threads=get_threads(otype, oid),
-                           activethr=json_dumps(active_thr),
-                           labels=get_all_labels(LANG))
-        
 @app.route('/add_message', methods=["POST"])
 def add_message():
 # add a new message to the thread        
-    otype = request.form["otype"]
-    oid = request.form["oid"]
 
-    if request.form["thread_id"] == "0":  # create new thread
-        thread = make_new_thread(request.form, session["user"])
-        action = "route object" # for logging purpose
+    try:
+        otype = request.form["otype"]
+        oid = request.form["oid"]
 
-        thr_params = create_rt_thread(request.form["otype"], 
-                                      rtg_object_id(request.form["oid"]),
-                                      thread,
-                                      request.form["message"],
-                                      request.files
-                                      )
-    
-    else:
-        action = "add message"
-        thread = get_active_thread(request.form["thread_id"])
-        thr_params = add_rt_message(thr_params, 
-                                    session["user"]["username"], 
-                                      request.form["message"],
-                                      request.files,
-                                      "sharesfor")
-                                    # signed_msg)
-        socketio.emit("refresh", to=str(thr_params["_id"]))
+        if request.form["thread_id"] == "0":  # create new thread
+            thread = make_new_thread(request.form, session["user"])
+            action = "route object" # for logging purpose
 
-    if thr_params.get("exc_ID"):
-        return render_templata('error.html',
-                                errormsg=get_error_message(thr_params["exc_ID"], LANG),
-                                gobackmsg=get_label("ClickBack", LANG))
+            thr_params = create_rt_thread(request.form["otype"], 
+                                          rtg_object_id(request.form["oid"]),
+                                          thread,
+                                          request.form["message"],
+                                          request.files
+                                          )
+        
+        else:
+            action = "add message"
+            thread = get_active_thread(request.form["thread_id"])
+            thr_params = add_rt_message(thr_params, 
+                                        session["user"]["username"], 
+                                          request.form["message"],
+                                          request.files,
+                                          "sharesfor")
+                                        # signed_msg)
+            socketio.emit("refresh", to=str(thr_params["_id"]))
 
-    return render_template('s4s4.html', 
-                           obj={"type": otype,
-                                "oid": oid,
-                                "name": object_name(otype, oid)},
-                           threads=get_threads(otype, oid),
-                           activethr=json_dumps(get_active_thread(thr_params["_id"])),
-                           labels=get_all_labels(LANG))
+        if thr_params.get("exc_ID"):
+            return render_templata('error.html',
+                                    errormsg=get_error_message(thr_params["exc_ID"], LANG),
+                                    gobackmsg=get_label("ClickBack", LANG))
+
+        return render_template('s4s4.html', 
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(get_active_thread(thr_params["_id"])),
+                               labels=get_all_labels(LANG))
+    except Exception as e:
+        return error_return(e)
 
     
     
@@ -155,75 +168,80 @@ def add_message():
 @app.route('/add_audience', methods = [ "POST"])
 def add_audience():
 # add an authorized user to the audience
-    
-    if request.form["thread_id"] == "0": 
-        activethr = make_new_thread(request.form, session["user"])
-    else:
-       activethr = get_active_thread(request.form["thread_id"])
-       
-    otype = request.form["otype"]
-    oid = request.form["oid"]
 
-    # the user to be added comes in concatenated id||name||email form
-    aud = request.form["slct-aud"].split("||")
-    aud = {"id": aud[0], "name": aud[1], "email": aud[2]}
+    try:    
+        if request.form["thread_id"] == "0": 
+            activethr = make_new_thread(request.form, session["user"])
+        else:
+           activethr = get_active_thread(request.form["thread_id"])
+           
+        otype = request.form["otype"]
+        oid = request.form["oid"]
 
-
-    thread = add_audience_rtg(activethr, aud)   
-    if thread.get("exc_ID"):
-        return render_templata('error.html',
-                                errormsg=get_error_message(thread["exc_ID"], LANG),
-                                gobackmsg=get_label("ClickBack", LANG))
+        # the user to be added comes in concatenated id||name||email form
+        aud = request.form["slct-aud"].split("||")
+        aud = {"id": aud[0], "name": aud[1], "email": aud[2]}
 
 
-    activethr["authorized_users"] = authorized_users(otype, oid)
+        thread = add_audience_rtg(activethr, aud)   
+        if thread.get("exc_ID"):
+            return render_templata('error.html',
+                                    errormsg=get_error_message(thread["exc_ID"], LANG),
+                                    gobackmsg=get_label("ClickBack", LANG))
 
-    # audlist contains only names (to display)
-    # audience is a list of dicts {id, name} 
-    activethr["audlist"] = [x["name"] for x in thread["audience"]] 
-    # activethr["audience"] = json.dumps(thread["audience"])
-    activethr["audience"] = thread["audience"] # using |tojson filter in the template
 
-    return render_template('s4s4.html', 
-                           obj={"type": otype,
-                                "oid": oid,
-                                "name": object_name(otype, oid)},
-                           threads=get_threads(otype, oid),
-                           activethr=json_dumps(activethr),
-                           labels=get_all_labels(LANG))
+        activethr["authorized_users"] = authorized_users(otype, oid)
+
+        # audlist contains only names (to display)
+        # audience is a list of dicts {id, name} 
+        activethr["audlist"] = [x["name"] for x in thread["audience"]] 
+        # activethr["audience"] = json.dumps(thread["audience"])
+        activethr["audience"] = thread["audience"] # using |tojson filter in the template
+
+        return render_template('s4s4.html', 
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(activethr),
+                               labels=get_all_labels(LANG))
+    except Exception as e:
+        return error_return(e)
 
 
 @app.route('/del_audience', methods = [ "POST"])
 def del_audience():
     # delete the selected user from the audience
+    try:
+        thread_id = request.form["thread_id"]
+        otype = request.form["otype"]
+        oid = request.form["oid"]
+        aud = request.form["slct-del-aud"]
+        if thread_id == "0":
+            activethr = make_new_thread(request.form, session["user"])
+        else:
+            activethr = get_active_thread(thread_id)
 
-    thread_id = request.form["thread_id"]
-    otype = request.form["otype"]
-    oid = request.form["oid"]
-    aud = request.form["slct-del-aud"]
-    if thread_id == "0":
-        activethr = make_new_thread(request.form, session["user"])
-    else:
-        activethr = get_active_thread(thread_id)
+        thread = del_audience_rtg(activethr, aud)   
+        if thread.get("exc_ID"):
+            return render_templata('error.html',
+                                    errormsg=get_error_message(thread["exc_ID"], LANG),
+                                    gobackmsg=get_label("ClickBack", LANG))
 
-    thread = del_audience_rtg(activethr, aud)   
-    if thread.get("exc_ID"):
-        return render_templata('error.html',
-                                errormsg=get_error_message(thread["exc_ID"], LANG),
-                                gobackmsg=get_label("ClickBack", LANG))
+        activethr["authorized_users"] = authorized_users(otype, oid)
+        activethr["audlist"] = [x["name"] for x in thread["audience"]] 
+        # activethr["audience"] = json.dumps(thread["audience"])
+        activethr["audience"] = thread["audience"] # using |tojson filter in the template
 
-    activethr["authorized_users"] = authorized_users(otype, oid)
-    activethr["audlist"] = [x["name"] for x in thread["audience"]] 
-    # activethr["audience"] = json.dumps(thread["audience"])
-    activethr["audience"] = thread["audience"] # using |tojson filter in the template
-
-    return render_template('s4s4.html', 
-                           obj={"type": otype,
-                                "oid": oid,
-                                "name": object_name(otype, oid)},
-                           threads=get_threads(otype, oid),
-                           activethr=json_dumps(activethr),
-                           labels=get_all_labels(LANG))
+        return render_template('s4s4.html', 
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(activethr),
+                               labels=get_all_labels(LANG))
+    except Exception as e:
+        return error_return(e)
     
 
 """ tag format as on DB
@@ -236,59 +254,66 @@ from routings import add_tag_rtg, del_tag_rtg
 @app.route('/add_tag', methods = [ "POST"])
 def add_tag():
 # add the selected tag to the thread
-    otype = request.form["otype"]
-    oid = request.form["oid"]
-    
-    if request.form["thread_id"] == "0":
-        activethr = make_new_thread(request.form, session["user"])
-    else:
-        activethr = get_active_thread(request.form["thread_id"])
+
+    try:
+        oid = request.form["oid"]
+        
+        if request.form["thread_id"] == "0":
+            activethr = make_new_thread(request.form, session["user"])
+        else:
+            activethr = get_active_thread(request.form["thread_id"])
 
 
-    activethr = add_tag_rtg(activethr, request.form["obj_id"])
+        activethr = add_tag_rtg(activethr, request.form["obj_id"])
 
-    if activethr.get("exc_ID"):
-        return render_templata('error.html',
-                                errormsg=get_error_message(activethr["exc_ID"], LANG),
-                                gobackmsg=get_label("ClickBack", LANG))
+        if activethr.get("exc_ID"):
+            return render_templata('error.html',
+                                    errormsg=get_error_message(activethr["exc_ID"], LANG),
+                                    gobackmsg=get_label("ClickBack", LANG))
 
-    return render_template('s4s4.html', 
-                           obj={"type": otype,
-                                "oid": oid,
-                                "name": object_name(otype, oid)},
-                           threads=get_threads(otype, oid),
-                           activethr=json_dumps(activethr),
-                           labels=get_all_labels(LANG))
+        return render_template('s4s4.html', 
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(activethr),
+                               labels=get_all_labels(LANG))
+    except Exception as e:
+        return error_return(e)
 
 
 @app.route('/del_tag', methods = [ "POST"])
 def del_tag():
 #remove a tag from the tagslist
-    otype = request.form["otype"]
-    oid = request.form["oid"]
-    otype = request.form["otype"]
-    oid = request.form["oid"]
-    
-    if request.form["thread_id"] == "0":
-        activethr = make_new_thread(request.form, session["user"])
-    else:
-        activethr = get_active_thread(request.form["thread_id"])
 
-    activethr = del_tag_rtg(activethr, request.form["slct-del-tag"])
-    if activethr.get("exc_ID"):
-        return render_templata('error.html',
-                                errormsg=get_error_message(activethr["exc_ID"], LANG),
-                                gobackmsg=get_label("ClickBack", LANG))
+    try:
+        otype = request.form["otype"]
+        oid = request.form["oid"]
+        otype = request.form["otype"]
+        oid = request.form["oid"]
+        
+        if request.form["thread_id"] == "0":
+            activethr = make_new_thread(request.form, session["user"])
+        else:
+            activethr = get_active_thread(request.form["thread_id"])
+
+        activethr = del_tag_rtg(activethr, request.form["slct-del-tag"])
+        if activethr.get("exc_ID"):
+            return render_templata('error.html',
+                                    errormsg=get_error_message(activethr["exc_ID"], LANG),
+                                    gobackmsg=get_label("ClickBack", LANG))
 
 
 
-    return render_template('s4s4.html', 
-                           obj={"type": otype,
-                                "oid": oid,
-                                "name": object_name(otype, oid)},
-                           threads=get_threads(otype, oid),
-                           activethr=json_dumps(activethr),
-                           labels=get_all_labels(LANG))
+        return render_template('s4s4.html', 
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(activethr),
+                               labels=get_all_labels(LANG))
+    except Exception as e:
+        return error_return(e)
 
     
 
