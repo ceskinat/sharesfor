@@ -213,9 +213,12 @@ def add_rt_message(th, user, message, rq_files, source):
     db = client.routeX
     try: 
         # th = db.routings.find_one({"_id": ObjectId(thr_params["_id"])})
-        if user not in th["audience"]:
+        usr = { "id": user["userid"],
+                "name": user["username"],
+                "email": user["email"]}
+        if usr not in th["audience"]:
             print("3: ", th["audience"])
-            th["audience"].append(user)
+            th["audience"].append(usr)
         unread = [x["id"] for x in th["audience"]]
         if user["userid"] in unread:
             unread.remove(user["userid"])
