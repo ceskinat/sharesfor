@@ -429,9 +429,22 @@ def inject_skin():
     return {"style_sheet": STYLE_SHEET}
 
 
+
 @app.route('/test_mime', methods=['GET'])
 def test_mime():
     return str(request.accept_mimetypes["application/json"]) + " ; " + str(request.accept_mimetypes["text/html"])
+
+from cp_test import execute_test
+@app.route('/test', methods=["GET"])
+def test():
+
+    if "user" not in session:
+        return error_return("Session not set")
+
+    session_cookie = request.cookies.get('session')
+
+    return execute_test(session["user"], session_cookie)
+
 
 """ for development tests
 
