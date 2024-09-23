@@ -63,7 +63,21 @@ def error_return(e):
                             errormsg=e,
                             gobackmsg=get_label("ClickBack", LANG))
 
+def render_or_json(**kwargs):
+    # return a json or rendered html according to request
+    if kwargs["accept_mimetypes"]["application/json"] >= kwargs["accept_mimetypes"]["text/html"]:
+        return jsonify({"obj": kwargs["obj"],
+            "threads": kwargs["threads"],
+            "activethr": kwargs["activethr"],
+            "labels": kwargs["labels"]})
+    else:
+        return render_template(kwargs["template"],
+                                obj= kwargs["obj"],
+                                threads=kwargs["threads"],
+                                activethr=kwargs["activethr"],
+                                labels=kwargs["labels"])
 
+        
 
 @app.route('/routing_form', methods = ["GET", "POST"])
 # main sharesfor route; displays the related objects threads and activethread
@@ -101,6 +115,7 @@ def routing_form():
             # from an application call the new thread is displayed; 
             # the existing threads are displayed by GET calls
             active_thr = make_new_thread(request.form, session["user"])
+        """
         return render_template('s4s4.html', 
                                obj={"type": otype,
                                     "oid": oid,
@@ -108,6 +123,16 @@ def routing_form():
                                threads=get_threads(otype, oid),
                                activethr=json_dumps(active_thr),
                                labels=get_all_labels(LANG))
+        """
+        return render_or_json(template='s4s4.html', 
+                                accept_mimetypes=request.accept_mimetypes,
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(active_thr),
+                               labels=get_all_labels(LANG))
+
     except Exception as e:
         return error_return(e)
 
@@ -146,6 +171,7 @@ def add_message():
                                     errormsg=get_error_message(thr_params["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
+        """
         return render_template('s4s4.html', 
                                obj={"type": otype,
                                     "oid": oid,
@@ -153,6 +179,16 @@ def add_message():
                                threads=get_threads(otype, oid),
                                activethr=json_dumps(get_active_thread(thr_params["_id"])),
                                labels=get_all_labels(LANG))
+        """
+        return render_or_json(template='s4s4.html', 
+            accept_mimetypes=request.accept_mimetypes,
+            obj={"type": otype,
+                "oid": oid,
+                "name": object_name(otype, oid)},
+            threads=get_threads(otype, oid),
+            activethr=json_dumps(active_thr),
+            labels=get_all_labels(LANG))
+
     except Exception as e:
         return error_return(e)
 
@@ -198,7 +234,17 @@ def add_audience():
         # activethr["audience"] = json.dumps(thread["audience"])
         activethr["audience"] = thread["audience"] # using |tojson filter in the template
 
+        """
         return render_template('s4s4.html', 
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(activethr),
+                               labels=get_all_labels(LANG))
+       """
+        return render_or_json(template='s4s4.html', 
+                                accept_mimetypes=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
                                     "name": object_name(otype, oid)},
@@ -233,6 +279,7 @@ def del_audience():
         # activethr["audience"] = json.dumps(thread["audience"])
         activethr["audience"] = thread["audience"] # using |tojson filter in the template
 
+        """
         return render_template('s4s4.html', 
                                obj={"type": otype,
                                     "oid": oid,
@@ -240,6 +287,16 @@ def del_audience():
                                threads=get_threads(otype, oid),
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
+       """
+        return render_or_json(template='s4s4.html',
+                                accept_mimetypes=request.accept_mimetypes,
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(activethr),
+                               labels=get_all_labels(LANG))
+
     except Exception as e:
         return error_return(e)
     
@@ -256,6 +313,7 @@ def add_tag():
 # add the selected tag to the thread
 
     try:
+        otype = request.form["otype"]
         oid = request.form["oid"]
         
         if request.form["thread_id"] == "0":
@@ -271,6 +329,7 @@ def add_tag():
                                     errormsg=get_error_message(activethr["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
+        """
         return render_template('s4s4.html', 
                                obj={"type": otype,
                                     "oid": oid,
@@ -278,6 +337,16 @@ def add_tag():
                                threads=get_threads(otype, oid),
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
+        """
+        return render_or_json(template='s4s4.html', 
+                                accept_mimetypes=request.accept_mimetypes,
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(activethr),
+                               labels=get_all_labels(LANG))
+
     except Exception as e:
         return error_return(e)
 
@@ -305,6 +374,7 @@ def del_tag():
 
 
 
+        """
         return render_template('s4s4.html', 
                                obj={"type": otype,
                                     "oid": oid,
@@ -312,6 +382,16 @@ def del_tag():
                                threads=get_threads(otype, oid),
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
+        """
+        return render_or_json(template='s4s4.html', 
+                                accept_mimetypes=request.accept_mimetypes,
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               threads=get_threads(otype, oid),
+                               activethr=json_dumps(activethr),
+                               labels=get_all_labels(LANG))
+
     except Exception as e:
         return error_return(e)
 
@@ -348,13 +428,13 @@ def inject_skin():
     from config import STYLE_SHEET
     return {"style_sheet": STYLE_SHEET}
 
+
+@app.route('/test_mime', methods=['GET'])
+def test_mime():
+    return str(request.accept_mimetypes["application/json"]) + " ; " + str(request.accept_mimetypes["text/html"])
+
 """ for development tests
 
-@app.route('/error_test', methods=["GET"])
-def test_error():
-    return render_template("error.html", 
-                            errormsg="Bu hatayı görmezden gelemezsiniz",
-                            gobackmsg="Önceki sayfaya dönmek için tıklayınız")
 
 
 @app.route('/json_test', methods=['GET', 'POST'])
