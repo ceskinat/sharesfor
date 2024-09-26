@@ -56,6 +56,17 @@ class test_thread:
 		res = requests.post("http://localhost:5010/add_audience", data=params, headers=self.headers)
 		return res
 
+	def del_audience(self, aud):
+		params = {"otype": self.otype,
+		"oid": self.oid,
+		"thread_id": self._id,
+		"audience": json.dumps(self.audience),
+		"tags": json.dumps(self.tags),
+		"slct-del-aud": aud["id"] 
+		}
+		res = requests.post("http://localhost:5010/del_audience", data=params, headers=self.headers)
+		return res
+
 
 def execute_test(user, session_cookie):
 
@@ -101,6 +112,21 @@ def execute_test(user, session_cookie):
 		result["success"] = False
 	success_list.append((result["action"], result["success"]))
 
+	db.test_results.insert_one(result)
+
+
+	# now remove the person from the audience
+	thread = test_thread(otype, oid, result["activethr"]["_id"], user, session_cookie)
+	result = thread.del_audience(person).text
+	result = json.loads(result)
+	result["date"] = datetime.now()
+	result["action"] = "Delete person from audience"
+	doc = db.routings.find_one({"_id": ObjectId(result["activethr"]["_id"])})
+	if doc and person not in doc.get("audience", []):
+		result["success"] = True
+	else:
+		result["success"] = False
+	success_list.append((result["action"], result["success"]))
 
 	db.test_results.insert_one(result)
 

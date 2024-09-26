@@ -312,7 +312,8 @@ def del_audience_rtg(thread, aud):
         try:
             db = client.routeX
             res = db.routings.update_one({"_id": ObjectId(thread["_id"])},
-                                         {"$pull": {"audience": aud, "unread": aud}})
+                                         {"$pull": {"audience": {"id": aud},
+                                                    "unread": {"id": aud}}})
             if res.matched_count == 0: 
                 thread["exc_ID"] = "AudDelFail"
         except:

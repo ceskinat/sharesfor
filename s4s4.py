@@ -64,7 +64,7 @@ def error_return(e):
                             gobackmsg=get_label("ClickBack", LANG))
 
 def render_or_json(**kwargs):
-    # return a json or rendered html according to request
+    # return a json or rendered html according to request header accept_mimetypes 
     if kwargs["accept_mimetypes"]["application/json"] >= kwargs["accept_mimetypes"]["text/html"]:
         return json.dumps({"obj": kwargs["obj"],
             "threads": kwargs["threads"],
@@ -430,11 +430,8 @@ def inject_skin():
 
 
 
-@app.route('/test_mime', methods=['GET'])
-def test_mime():
-    return str(request.accept_mimetypes["application/json"]) + " ; " + str(request.accept_mimetypes["text/html"])
 
-from cp_test import execute_test
+from tests import execute_test
 @app.route('/test', methods=["GET"])
 def test():
 
@@ -447,6 +444,9 @@ def test():
 
 
 """ for development tests
+@app.route('/test_mime', methods=['GET'])
+def test_mime():
+    return str(request.accept_mimetypes["application/json"]) + " ; " + str(request.accept_mimetypes["text/html"])
 
 
 
