@@ -6,7 +6,7 @@ Created on Wed Sep 14 113:40 2022
 @author: cem
 """
 
-from flask import Flask, render_template, request, session, redirect, url_for, send_file, abort
+from flask import Flask, render_template, request, session, redirect, url_for, send_file, abort, jsonify
 
 # from sampleintfcs import object_list, object_name, authorized_users
 from cp_interfaces import object_list, object_name, authorized_users
@@ -66,10 +66,10 @@ def error_return(e):
 def render_or_json(**kwargs):
     # return a json or rendered html according to request
     if kwargs["accept_mimetypes"]["application/json"] >= kwargs["accept_mimetypes"]["text/html"]:
-        return jsonify({"obj": kwargs["obj"],
+        return json.dumps({"obj": kwargs["obj"],
             "threads": kwargs["threads"],
             "activethr": kwargs["activethr"],
-            "labels": kwargs["labels"]})
+            "labels": kwargs["labels"]}, default=str)
     else:
         return render_template(kwargs["template"],
                                 obj= kwargs["obj"],
@@ -186,7 +186,7 @@ def add_message():
                 "oid": oid,
                 "name": object_name(otype, oid)},
             threads=get_threads(otype, oid),
-            activethr=json_dumps(active_thr),
+            activethr=json_dumps(get_active_thread(thr_params["_id"])),
             labels=get_all_labels(LANG))
 
     except Exception as e:
