@@ -58,26 +58,31 @@ def on_leave(data):
     print("Left room:", room)
     
 
-def error_return(e):
-    return render_template('error.html',
-                            errormsg=e,
+def error_return(e, **kwargs):
+    return render_or_json('error.html', 
+                            a_mime=kwargs["a_mime"],
+                            errormsg=str(e),
                             gobackmsg=get_label("ClickBack", LANG))
 
-def render_or_json(**kwargs):
+def render_or_json(template,  **kwargs):
     # return a json or rendered html according to request header accept_mimetypes 
-    if kwargs["accept_mimetypes"]["application/json"] >= kwargs["accept_mimetypes"]["text/html"]:
+    if kwargs["a_mime"]["application/json"] >= kwargs["a_mime"]["text/html"]:
+        return json.dumps(kwargs, default=str)
+        """
         return json.dumps({"obj": kwargs["obj"],
             "threads": kwargs["threads"],
             "activethr": kwargs["activethr"],
             "labels": kwargs["labels"]}, default=str)
+        """
     else:
+        """
         return render_template(kwargs["template"],
                                 obj= kwargs["obj"],
                                 threads=kwargs["threads"],
                                 activethr=kwargs["activethr"],
                                 labels=kwargs["labels"])
-
-        
+        """
+        return render_template(template, **kwargs)
 
 @app.route('/routing_form', methods = ["GET", "POST"])
 # main sharesfor route; displays the related objects threads and activethread
@@ -124,8 +129,8 @@ def routing_form():
                                activethr=json_dumps(active_thr),
                                labels=get_all_labels(LANG))
         """
-        return render_or_json(template='s4s4.html', 
-                                accept_mimetypes=request.accept_mimetypes,
+        return render_or_json('s4s4.html', 
+                                a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
                                     "name": object_name(otype, oid)},
@@ -134,7 +139,7 @@ def routing_form():
                                labels=get_all_labels(LANG))
 
     except Exception as e:
-        return error_return(e)
+        return error_return(e, a_mime=request.accept_mimetypes)
 
 @app.route('/add_message', methods=["POST"])
 def add_message():
@@ -167,7 +172,8 @@ def add_message():
             socketio.emit("refresh", to=str(thr_params["_id"]))
 
         if thr_params.get("exc_ID"):
-            return render_template('error.html',
+            return render_or_json('error.html',
+                                    a_mime=request.accept_mimetypes,
                                     errormsg=get_error_message(thr_params["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -180,8 +186,8 @@ def add_message():
                                activethr=json_dumps(get_active_thread(thr_params["_id"])),
                                labels=get_all_labels(LANG))
         """
-        return render_or_json(template='s4s4.html', 
-            accept_mimetypes=request.accept_mimetypes,
+        return render_or_json('s4s4.html',
+            a_mime=request.accept_mimetypes,
             obj={"type": otype,
                 "oid": oid,
                 "name": object_name(otype, oid)},
@@ -190,7 +196,7 @@ def add_message():
             labels=get_all_labels(LANG))
 
     except Exception as e:
-        return error_return(e)
+        return error_return(e, a_mime=request.accept_mimetypes)
 
     
     
@@ -221,7 +227,8 @@ def add_audience():
 
         thread = add_audience_rtg(activethr, aud)   
         if thread.get("exc_ID"):
-            return render_template('error.html',
+            return render_or_json('error.html',
+                                    a_mime=request.accept_mimetypes,
                                     errormsg=get_error_message(thread["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -243,8 +250,8 @@ def add_audience():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
        """
-        return render_or_json(template='s4s4.html', 
-                                accept_mimetypes=request.accept_mimetypes,
+        return render_or_json('s4s4.html', 
+                                a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
                                     "name": object_name(otype, oid)},
@@ -252,7 +259,7 @@ def add_audience():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
     except Exception as e:
-        return error_return(e)
+        return error_return(e, a_mime=request.accept_mimetypes)
 
 
 @app.route('/del_audience', methods = [ "POST"])
@@ -270,7 +277,8 @@ def del_audience():
 
         thread = del_audience_rtg(activethr, aud)   
         if thread.get("exc_ID"):
-            return render_template('error.html',
+            return render_or_json('error.html',
+                                    a_mime=request.accept_mimetypes,
                                     errormsg=get_error_message(thread["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -288,8 +296,8 @@ def del_audience():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
        """
-        return render_or_json(template='s4s4.html',
-                                accept_mimetypes=request.accept_mimetypes,
+        return render_or_json('s4s4.html',
+                                a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
                                     "name": object_name(otype, oid)},
@@ -298,7 +306,7 @@ def del_audience():
                                labels=get_all_labels(LANG))
 
     except Exception as e:
-        return error_return(e)
+        return error_return(e, a_mime=request.accept_mimetypes)
     
 
 """ tag format as on DB
@@ -312,7 +320,7 @@ from routings import add_tag_rtg, del_tag_rtg
 def add_tag():
 # add the selected tag to the thread
 
-    try:
+#    try:
         otype = request.form["otype"]
         oid = request.form["oid"]
         
@@ -325,7 +333,8 @@ def add_tag():
         activethr = add_tag_rtg(activethr, request.form["obj_id"])
 
         if activethr.get("exc_ID"):
-            return render_template('error.html',
+            return render_or_json('error.html', 
+                                    a_mime=request.accept_mimetypes,
                                     errormsg=get_error_message(activethr["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -338,8 +347,8 @@ def add_tag():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
         """
-        return render_or_json(template='s4s4.html', 
-                                accept_mimetypes=request.accept_mimetypes,
+        return render_or_json('s4s4.html', 
+                                a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
                                     "name": object_name(otype, oid)},
@@ -347,8 +356,8 @@ def add_tag():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
 
-    except Exception as e:
-        return error_return(e)
+#    except Exception as e:
+#        return error_return(e, a_mime=request.accept_mimetypes)
 
 
 @app.route('/del_tag', methods = [ "POST"])
@@ -368,7 +377,8 @@ def del_tag():
 
         activethr = del_tag_rtg(activethr, request.form["slct-del-tag"])
         if activethr.get("exc_ID"):
-            return render_template('error.html',
+            return render_or_json('error.html',
+                                    a_mime=request.accept_mimetypes,
                                     errormsg=get_error_message(activethr["exc_ID"], LANG),
                                     gobackmsg=get_label("ClickBack", LANG))
 
@@ -383,8 +393,8 @@ def del_tag():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
         """
-        return render_or_json(template='s4s4.html', 
-                                accept_mimetypes=request.accept_mimetypes,
+        return render_or_json('s4s4.html', 
+                                a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
                                     "name": object_name(otype, oid)},
@@ -393,7 +403,7 @@ def del_tag():
                                labels=get_all_labels(LANG))
 
     except Exception as e:
-        return error_return(e)
+        return error_return(e, a_mime=request.accept_mimetypes)
 
     
 

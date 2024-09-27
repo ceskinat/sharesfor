@@ -44,6 +44,11 @@ class test_thread:
 		"tags": json.dumps(self.tags),
 		"message": message}
 		res = requests.post("http://localhost:5010/add_message", data=params, headers=self.headers)
+		try:
+			res = json.loads(res.text)
+		except:
+			return res.text
+		res["date"] = datetime.now()
 		return res
 
 	def add_audience(self, aud):
@@ -54,6 +59,11 @@ class test_thread:
 		"tags": json.dumps(self.tags),
 		"slct-aud": aud["id"] + "||" + aud["name"] + "||" + aud["email"]}
 		res = requests.post("http://localhost:5010/add_audience", data=params, headers=self.headers)
+		try:
+			res = json.loads(res.text)
+		except:
+			return res.text
+		res["date"] = datetime.now()
 		return res
 
 	def del_audience(self, aud):
@@ -65,7 +75,28 @@ class test_thread:
 		"slct-del-aud": aud["id"] 
 		}
 		res = requests.post("http://localhost:5010/del_audience", data=params, headers=self.headers)
+		try:
+			res = json.loads(res.text)
+		except:
+			return res.text
+		res["date"] = datetime.now()
 		return res
+
+	def add_tag(self, tag):
+		params = {"otype": self.otype,
+		"oid": self.oid,
+		"thread_id": self._id,
+		"audience": json.dumps(self.audience),
+		"tags": json.dumps(self.tags),
+		"obj_id": json.dumps(tag)}
+		res = requests.post("http://localhost:5010/add_tag", data=params, headers=self.headers)
+		try:
+			res = json.loads(res.text)
+		except:
+			return res.text
+		res["date"] = datetime.now()
+		return res
+
 
 
 def execute_test(user, session_cookie):
@@ -80,9 +111,11 @@ def execute_test(user, session_cookie):
 
 	#create a random thread adding a new message
 	thread = test_thread(otype, oid, "0", user, session_cookie)
-	result = thread.add_message("Bu test modülünden eklenmiş bir mesajdır").text
-	result = json.loads(result)
-	result["date"] = datetime.now()
+	result = thread.add_message("Bu test modülünden eklenmiş bir mesajdır")
+
+	if type(result) != dict or not result.get("activethr"):
+		return result
+
 	result["action"] = "Create Message"
 	# check if the message is really added
 	chk = db.routings.find_one({"_id": ObjectId(result["activethr"]["_id"])})
@@ -100,9 +133,11 @@ def execute_test(user, session_cookie):
 		person = result["activethr"]["authorized_users"][randint(0, len(result["activethr"]["authorized_users"] ) - 1)]
 
 	thread = test_thread(otype, oid, result["activethr"]["_id"], user, session_cookie)
-	result = thread.add_audience(person).text
-	result = json.loads(result)
-	result["date"] = datetime.now()
+	result = thread.add_audience(person)
+
+	if type(result) != dict or not result.get("activethr"):
+		return result
+
 	result["action"] = "Add person to audience"
 
 	doc = db.routings.find_one({"_id": ObjectId(result["activethr"]["_id"])})
@@ -117,9 +152,11 @@ def execute_test(user, session_cookie):
 
 	# now remove the person from the audience
 	thread = test_thread(otype, oid, result["activethr"]["_id"], user, session_cookie)
-	result = thread.del_audience(person).text
-	result = json.loads(result)
-	result["date"] = datetime.now()
+	result = thread.del_audience(person)
+
+	if type(result) != dict or not result.get("activethr"):
+		return result
+
 	result["action"] = "Delete person from audience"
 	doc = db.routings.find_one({"_id": ObjectId(result["activethr"]["_id"])})
 	if doc and person not in doc.get("audience", []):
@@ -129,5 +166,28 @@ def execute_test(user, session_cookie):
 	success_list.append((result["action"], result["success"]))
 
 	db.test_results.insert_one(result)
+
+
+	# add a random tag to the thread
+	taglist = object_list("", user)
+	tag = taglist[randint(0,len(taglist) - 1)]
+	thread = test_thread(otype, oid, result["activethr"]["_id"], user, session_cookie)
+	result = thread.add_tag(tag)
+
+	if type(result) != dict or not result.get("activethr"):
+		return result
+
+	result["action"] = "Add tag to tags"
+	#check if tag exists
+	doc = db.routings.find_one({"_id": ObjectId(result["activethr"]["_id"])})
+	if doc and tag in doc.get("tags", []):
+		result["success"] = True
+	else:
+		result["success"] = False
+	success_list.append((result["action"], result["success"]))
+
+	db.test_results.insert_one(result)
+
+
 
 	return success_list
