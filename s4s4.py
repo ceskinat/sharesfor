@@ -320,7 +320,7 @@ from routings import add_tag_rtg, del_tag_rtg
 def add_tag():
 # add the selected tag to the thread
 
-#    try:
+    try:
         otype = request.form["otype"]
         oid = request.form["oid"]
         
@@ -356,8 +356,8 @@ def add_tag():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
 
-#    except Exception as e:
-#        return error_return(e, a_mime=request.accept_mimetypes)
+    except Exception as e:
+        return error_return(e, a_mime=request.accept_mimetypes)
 
 
 @app.route('/del_tag', methods = [ "POST"])
@@ -365,8 +365,6 @@ def del_tag():
 #remove a tag from the tagslist
 
     try:
-        otype = request.form["otype"]
-        oid = request.form["oid"]
         otype = request.form["otype"]
         oid = request.form["oid"]
         

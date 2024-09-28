@@ -97,6 +97,21 @@ class test_thread:
 		res["date"] = datetime.now()
 		return res
 
+	def del_tag(self, tag):
+		params = {"otype": self.otype,
+		"oid": self.oid,
+		"thread_id": self._id,
+		"audience": json.dumps(self.audience),
+		"tags": json.dumps(self.tags),
+		"slct-del-tag": json.dumps(tag)}
+		res = requests.post("http://localhost:5010/del_tag", data=params, headers=self.headers)
+		try:
+			res = json.loads(res.text)
+		except:
+			return res.text
+		res["date"] = datetime.now()
+		return res
+
 
 
 def execute_test(user, session_cookie):
@@ -170,7 +185,7 @@ def execute_test(user, session_cookie):
 
 	# add a random tag to the thread
 	taglist = object_list("", user)
-	tag = taglist[randint(0,len(taglist) - 1)]
+	tag = taglist[randint(0,len(taglist) - 1)]["id"]
 	thread = test_thread(otype, oid, result["activethr"]["_id"], user, session_cookie)
 	result = thread.add_tag(tag)
 
@@ -181,6 +196,24 @@ def execute_test(user, session_cookie):
 	#check if tag exists
 	doc = db.routings.find_one({"_id": ObjectId(result["activethr"]["_id"])})
 	if doc and tag in doc.get("tags", []):
+		result["success"] = True
+	else:
+		result["success"] = False
+	success_list.append((result["action"], result["success"]))
+
+	db.test_results.insert_one(result)
+
+	
+	# delete the tag added in the previous step
+	thread = test_thread(otype, oid, result["activethr"]["_id"], user, session_cookie)
+	result = thread.del_tag(tag)
+
+	if type(result) != dict or not result.get("activethr"):
+		return result
+
+	result["action"] = "Delete tag from tags"
+	doc = db.routings.find_one({"_id": ObjectId(result["activethr"]["_id"])})
+	if doc and tag not in doc.get("tags", []):
 		result["success"] = True
 	else:
 		result["success"] = False
