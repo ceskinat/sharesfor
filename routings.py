@@ -25,6 +25,13 @@ from email.mime.multipart import MIMEMultipart
 
 import json
 
+""" authorization """
+def authorize_app(client_id, api_key):
+    db = client.routeX
+
+    doc = db.authorized_apps.find_one({"client_id": client_id})
+    return (doc and doc.get("api_key") == api_key)
+
 
 """ multilang section """
 LABELS_MSGS = {} # read once from database; then serve from memory
@@ -99,7 +106,7 @@ def make_new_thread(rqform, user):
                  "authorized_users": authorized_users(rqform["otype"], rqform["oid"]),
                  "user": user
                  }
-    print(activethr)
+    # print(activethr)
     return activethr    
 
 def json_dumps(thread):

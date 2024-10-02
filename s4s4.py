@@ -43,7 +43,7 @@ from bson import ObjectId
 
 
 
-from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG, get_label, get_error_message
+from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG, get_label, get_error_message, authorize_app
 
 @socketio.on('join')
 def on_join(data):
@@ -88,7 +88,12 @@ def render_or_json(template,  **kwargs):
 # main sharesfor route; displays the related objects threads and activethread
 def routing_form():
     try:
+
         if request.method == "GET": # request coming from listed threads
+
+            if not session["authorized"]:
+                return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+
             action = "display routing" #for logging
 
             # session["user"] comes from the application 
@@ -109,12 +114,19 @@ def routing_form():
             
         else: #POST: request from an application
 
+
             # session["user"] comes from the application 
             session.pop("user", None)
             session["user"] = {"userid": request.form.get("userid"),
                                "username": request.form.get("username"),
                                "email": request.form.get("email")}
 
+            session.pop("authorized", None)
+            session["authorized"] = authorize_app(request.form.get("client_id"), request.form.get("api_key"))           
+            if not session["authorized"]:
+                return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+
+            # print("AppId: ", request.form["client_id"], ", API key:", request.form["api_key"] )
             otype = request.form.get("otype")
             oid = str(request.form.get("oid"))
             # from an application call the new thread is displayed; 
@@ -146,6 +158,10 @@ def add_message():
 # add a new message to the thread        
 
     try:
+
+        if not session["authorized"]:
+            return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+
         otype = request.form["otype"]
         oid = request.form["oid"]
 
@@ -212,6 +228,10 @@ def add_audience():
 # add an authorized user to the audience
 
     try:    
+
+        if not session["authorized"]:
+            return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+ 
         if request.form["thread_id"] == "0": 
             activethr = make_new_thread(request.form, session["user"])
         else:
@@ -266,6 +286,10 @@ def add_audience():
 def del_audience():
     # delete the selected user from the audience
     try:
+
+        if not session["authorized"]:
+            return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+
         thread_id = request.form["thread_id"]
         otype = request.form["otype"]
         oid = request.form["oid"]
@@ -321,6 +345,10 @@ def add_tag():
 # add the selected tag to the thread
 
     try:
+
+        if not session["authorized"]:
+            return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+
         otype = request.form["otype"]
         oid = request.form["oid"]
         
@@ -365,6 +393,10 @@ def del_tag():
 #remove a tag from the tagslist
 
     try:
+
+        if not session["authorized"]:
+            return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+
         otype = request.form["otype"]
         oid = request.form["oid"]
         
