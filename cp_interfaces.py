@@ -44,18 +44,23 @@ def object_list(inp, user):
     lst = []
 
     #courses
-    for crs in db.courses.find({"$or": [{"ders_kodu": re.compile(inp, re.I)},
+    for crs in db.courses.find({"ders_kodu": {"$in": courselist},
+                                "$or": [{"ders_kodu": re.compile(inp, re.I)},
                                         {"ders_adi": re.compile(inp, re.I)}]}):
         lst.append({"id": {"id": ["ders", str(crs["ders_kodu"])], "name": crs["ders_adi"]},
                     "name": "ders" + ":" + crs["ders_adi"]})
 
     #lectures
-    for lect in db.lectures.find({"course": {"$in": courselist}}):
+    for lect in db.lectures.find({"course": {"$in": courselist},
+                                    "$or": [{"course": re.compile(inp, re.I)},
+                                        {"description": re.compile(inp, re.I)}]}):
         lst.append({"id": {"id": ["oturum", lect["course"] + "*!*!" + lect["session_no"]], "name": lect["description"]},
                     "name": "oturum" + ":" + lect["description"]})
 
     #titles
-    for title in db.titles.find({"course": {"$in": courselist}}):
+    for title in db.titles.find({"course": {"$in": courselist},
+                                    "$or": [{"course": re.compile(inp, re.I)},
+                                            {"title": re.compile(inp, re.I)}]}):
         lst.append({"id": {"id": ["başlık", title["course"] + "*!*!" + title["title"]], "name": title["title"]},
                     "name": "başlık" + ":" + title["course"] + " " + title["title"]})
 

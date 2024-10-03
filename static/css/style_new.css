@@ -44,6 +44,10 @@ div.container-routing .active-thread{
     font-size: medium;
 }
 
+div.container-activethr {
+    max-width: 750px;
+}
+
 form.form-inline input, button {
     margin: 10px;
     }
@@ -90,9 +94,15 @@ div.active-thread {
 #    border-color: DarkSlateBlue;
     padding: 5px;
 #    background-color: GhostWhite;
-    background-color: SteelBlue;
+    background-color: aliceblue;
     margin: 2px 20px 2px 20px;
     }
+
+div.active-thread h4 {
+    color: DarkSlateGrey;
+    text-align: center;
+}
+
     
 .text-sm {
     font-size: small;
@@ -127,8 +137,8 @@ div.aud-selector {
 div.messages-area {
 #    background-color: LightBlue;
     padding: 10;
-    border: 1px groove;
-    border-color: DarkSlateGrey;
+#    border: 1px groove;
+    border-color: steelblue;
 }
 
 p.obj-list-item {

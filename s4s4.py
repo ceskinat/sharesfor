@@ -111,6 +111,14 @@ def routing_form():
                 remove_from_unread(active_thr["_id"], session["user"])
             else: 
                 active_thr = make_new_thread(request.args, session["user"])
+            return render_or_json('activethr.html', 
+                                    a_mime=request.accept_mimetypes,
+                                   obj={"type": otype,
+                                        "oid": oid,
+                                        "name": object_name(otype, oid)},
+                                   threads=get_threads(otype, oid),
+                                   activethr=json_dumps(active_thr),
+                                   labels=get_all_labels(LANG))
             
         else: #POST: request from an application
 
@@ -132,23 +140,23 @@ def routing_form():
             # from an application call the new thread is displayed; 
             # the existing threads are displayed by GET calls
             active_thr = make_new_thread(request.form, session["user"])
-        """
-        return render_template('s4s4.html', 
-                               obj={"type": otype,
-                                    "oid": oid,
-                                    "name": object_name(otype, oid)},
-                               threads=get_threads(otype, oid),
-                               activethr=json_dumps(active_thr),
-                               labels=get_all_labels(LANG))
-        """
-        return render_or_json('s4s4.html', 
-                                a_mime=request.accept_mimetypes,
-                               obj={"type": otype,
-                                    "oid": oid,
-                                    "name": object_name(otype, oid)},
-                               threads=get_threads(otype, oid),
-                               activethr=json_dumps(active_thr),
-                               labels=get_all_labels(LANG))
+            """
+            return render_template('s4s4.html', 
+                                   obj={"type": otype,
+                                        "oid": oid,
+                                        "name": object_name(otype, oid)},
+                                   threads=get_threads(otype, oid),
+                                   activethr=json_dumps(active_thr),
+                                   labels=get_all_labels(LANG))
+            """
+            return render_or_json('s4s4.html', 
+                                    a_mime=request.accept_mimetypes,
+                                   obj={"type": otype,
+                                        "oid": oid,
+                                        "name": object_name(otype, oid)},
+                                   threads=get_threads(otype, oid),
+                                   activethr=json_dumps(active_thr),
+                                   labels=get_all_labels(LANG))
 
     except Exception as e:
         return error_return(e, a_mime=request.accept_mimetypes)
@@ -202,7 +210,7 @@ def add_message():
                                activethr=json_dumps(get_active_thread(thr_params["_id"])),
                                labels=get_all_labels(LANG))
         """
-        return render_or_json('s4s4.html',
+        return render_or_json('avtivethr.html',
             a_mime=request.accept_mimetypes,
             obj={"type": otype,
                 "oid": oid,
@@ -270,7 +278,7 @@ def add_audience():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
        """
-        return render_or_json('s4s4.html', 
+        return render_or_json('activethr.html', 
                                 a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
@@ -320,7 +328,7 @@ def del_audience():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
        """
-        return render_or_json('s4s4.html',
+        return render_or_json('activethr.html',
                                 a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
@@ -375,7 +383,7 @@ def add_tag():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
         """
-        return render_or_json('s4s4.html', 
+        return render_or_json('activethr.html', 
                                 a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
@@ -423,7 +431,7 @@ def del_tag():
                                activethr=json_dumps(activethr),
                                labels=get_all_labels(LANG))
         """
-        return render_or_json('s4s4.html', 
+        return render_or_json('activethr.html', 
                                 a_mime=request.accept_mimetypes,
                                obj={"type": otype,
                                     "oid": oid,
