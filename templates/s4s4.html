@@ -215,224 +215,64 @@
 
 
     <div class='jumbotron collaborations bg-light p-4'>
-    {{session.user.username}}
+        {{session.user.username}}
         <h3>{{TopTitle}}</h3>
-        <div class="container container-routing mt-3  pb-4">
+       <div class="row">
+         <div class="container container-routing mt-3  pb-4 col-xl-8">
+<!--
             <button type="button" class="btn-close close text-right" onclick="window.open('', '_self', ''); window.close();">x</button>
-            <br>
-            <h4>{{obj.type}}:{{obj.name}}</h4>
+-->
+        
+<!-- THREAD LIST -->
+            <h4>{{obj.type}}: {{obj.name}}</h4>
             {% if exception %}
                 <div class="exc-display">exception</div>
             {% endif %}
-        <div class="row">
-        
-<!-- THREAD LIST -->
-            <div class="col-xl-4">  
                 <h5>{{labels.RtgsTitle}}</h5>
                 <ul class="list-group">
                     {% for thread in threads %}
                         <li class="list-group-item">
-                        {% if thread._id == activethr._id %}
-                            {{thread.audlist}}-{{thread.messages[0].time.strftime("%d/%m/%y-%H:%M")}}:{{thread.messages[0].message[:50]}} 
-                        {% else %}
                             <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}&thread_id={{thread._id}}" >
                             {% if session.user.userid in thread.unread %} <b> {% endif %}
-                                {{thread.audlist}}-{{thread.messages[0].time.strftime("%d/%m/%y-%H:%M")}}:{{thread.messages[0].message[:50]}}
+                                {{thread.audlist}}-{{thread.messages[0].time.strftime("%d/%m/%y-%H:%M")}}:{{thread.messages[0].message[:150]}}
                             {% if session.user.userid in thread.unread %} </b> {% endif %}  
                             </a>                          
-                        {% endif %}
                         </li>
                     {% endfor %}
                 </ul>
-                {% if not activethr.new %}
-                    <div>
-                        <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}&thread_id=0">{{labels.NewMsg}}</a>
-                    </div>
-                {% endif %}
+                <div>
+                    <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}&thread_id=0">{{labels.NewMsg}}</a>
+                </div>
             </div>    
-            <div class="col-xl-8">
 
-<!-- ACTIVE THREAD -->
-                <div class="magnifier">
-                    <h4 onclick='showOnModal()'  title={{labels.ZoomTitle}}>+</h4>
-                </div>
-                <div class="active-thread"> 
- <!-- audience selector -->
-                    <div class='aud-selector p-1 pl-3'>
-                        <div class="row">
-                            <div class="col-xl-2">
-                                <h6>{{labels.RcptsTitle}}</h6>
-                            </div>
-                            <div class="col-xl-10">
-                                <div class="tags-list">
-                                    {{activethr.audlist|join(", ")}}
-                                </div>
-                                <a id='toggle-aud-slct' class='akv-link text-sm' onclick='displaySlcts()'>{{labels.ToggleAddRmRcpt}}</a>
-                                <div id='aud-selectors' class='aud-selectors' style='display:none; border:1px groove;'>
-                                    <div class="m-2">
-                                        <form id="aud-add" action="/add_audience" method="POST">
-    
-                                         <!-- hidden inputs -->
-                                            <input type='hidden' name='otype' value={{obj.type}}>
-                                            <input type='hidden' name='oid' value={{obj.oid}}>
-                                            <input type='hidden' name='thread_id' value={{activethr._id}}>
+        <!-- My Messages area -->
+        <div class="col-xl-4 container-routing container-messages mt-3">
+            <h4>{{labels.MyMsgsTitle}}</h4>
+            <ul class="list-group user-threads">
+                {% for thread in user_threads %}
+                    <li class="list-group-item">
+                        <a class="akv-link" href="/routing_form?otype={{thread.obj_type}}&oid={{thread.obj_id}}&thread_id={{thread._id}}" >
+                        {% set unread_ids = [] %}
+                        {% for x in thread.unread %}
+                            {% set unread_ids = unread_ids + [x["id"]] %}
+                        {% endfor %}
+                        {% if session.user.userid in unread_ids %} <b> {% endif %}
 
-                                            <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                                            <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                                            
-                                            <div class='input-group'>
-                                                <select name='slct-aud' id='slct-aud' class='form-control text-sm'>
-                                                    {% for person in activethr.authorized_users %}
-                                                        <option value='{{person.id}}||{{person.name}}||{{person.email}}'>{{person.name}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <input type='submit' form='aud-add' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value="{{labels.AddRcpt}}"/>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="m-2">
-                                        <form id="aud-del" action="/del_audience" method="POST">
-    
-                                         <!-- hidden inputs -->
-                                            <input type='hidden' name='otype' value={{obj.type}}>
-                                            <input type='hidden' name='oid' value={{obj.oid}}>
-                                            <input type='hidden' name='thread_id' value={{activethr._id}}>
-                                            <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                                            <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                                            
-                                            <div class='input-group'>
-                                                <select name='slct-del-aud' id='slct-aud' class='form-control text-sm'>
-                                                    {% for person in activethr.audary %}
-                                                        <option value={{person.id}}>{{person.name}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <input type='submit' form='aud-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value="{{labels.RmRcpt}}"/>
-                                            </div>
-                                        </form>
-                                    </div>
-    
-                                </div>
-                                <!-- tags section -->                    
-                            </div>
-                        </div>
-                    </div>            
-                    <div class='tag-display aud-selector p1 pl-3'>                
-                        <div class="row">
-                            <div class='col-xl-2'>
-                                <h6>{{labels.TagsTitle}}</h6>
-                            </div>
-                            <div class="col-xl-10">
-                                {{activethr.tagslist|join(", ")}}
-                            </div>
-                        </div>
-                        <a id='toggle-tag-slct' class='akv-link text-sm' onclick='displaySlcts_tags()'>{{labels.ToggleAddRmTags}}</a>
-                        <div id='tag-selectors' class='tag-selectors' style='display:none; border:1px groove;'>
-                            <div class='m-2'>
-                                <form id="tag-add" action="/add_tag" method="POST">
-                                <!-- hidden inputs -->
-                                   <input type='hidden' name='otype' value={{obj.type}}>
-                                   <input type='hidden' name='oid' value={{obj.oid}}>
-                                   <input type='hidden' name='thread_id' value={{activethr._id}}>
-
-                                   <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                                   <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                                    
-                                    {% set btn_content=labels.AddTag %}
-                                    {% set list_url="obj_list" %}
-                                    {% set obj_placeholder=labels.AddTagPlc %}
-                                    {% include "listtemplate.html" %}
-    
-
-     <!--                               
-                                    <div class='input-group-append'>
-                                        <input type="text" id="tagname" name="tagname" onkeyup="filterFunct('obj-list','tagname')" placeholder="{{labels.AddTagPlc}}"  autocomplete="off"/>
-                                        <input type="hidden" id="tagid" name="tagid" />
-                                        <input type='submit' id='tag-submit' form='tag-add' class='btn-aksiyon' value='{{labels.AddTag}}'>
-                                    </div>
-        
-                                    <div id= "obj-list" class="obj-list">
-                                    </div>
-    -->
-                                </form>
-                            </div>
-                            <div class='m-2'>
-                                <form id="tag-del" action="/del_tag" method="POST">
-                                <!-- hidden inputs -->
-                                   <input type='hidden' name='otype' value={{obj.type}}>
-                                   <input type='hidden' name='oid' value={{obj.oid}}>
-                                   <input type='hidden' name='thread_id' value={{activethr._id}}>
-                     
-                                   <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                                   <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                                    
-                                    <div class='input-group-append'>
-                                        <select name='slct-del-tag' id='slct-del-tag' class='form-control text-sm'>
-                                            {% for tag in activethr.tagary %}
-                                                {% if tag.tag.id != [obj.type, obj.oid] %}
-                                                    <option value='{{tag.tagidstr|safe}}'>{{tag.tag.name}}</option>
-                                                {% endif %}
-                                            {% endfor %}    
-                                        </select>
-                                        <input type='submit' form='tag-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value='{{labels.RmTag}}'/>
-                                    </div>
-                                </form>
-                            </div>
-    
-                        </div>
                         
-                    </div>
-                    
-                    
-                    <div class="messages-area p-2">
-                        <h6>{{labels.MsgsTitle}}</h6>
-                        {% if activethr.messages%}
-                            {% for msg in activethr.messages %}
-                                <div class="row">
-                                    <div class='col-xl-8 bg-msg m-2'>
-                                        <div class='text-sm'><b>{{msg.user.name}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
-                                        {{msg.message | replace("\n","<br>")}}
-                                    </div>
-                                    {% if msg.file %}
-                                        <div class='attachment-display col-xl-4 mb-3'>
-                                        <a class='btn' href='/download_file?file_id={{msg.file.gid}}&file_name={{msg.file.fname}}'>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
-                                            <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
-                                            {{msg.file.fname}}
-                                        </a>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                        <form id="message-add" enctype="multipart/form-data" action="/add_message" method="POST"  >
-                        <!-- hidden inputs -->
-                            <input type='hidden' name='otype' value={{obj.type}}>
-                            <input type='hidden' name='oid' value={{obj.oid}}>
-                            <input type='hidden' name='thread_id' value={{activethr._id}}>
+                        <p class="m-1">{{thread.obj_type}}: {{thread.obj_name}}</p>
+                        <p class="m-1">{{thread.lastm.user.username}}-{{thread.lastm.time.strftime("%d/%m/%y-%H:%M")}}:</p>
+                        <p class="m-1 ml-3">{{thread.lastm.message[:150]}}</p>
 
-                            <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                            <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                            
-                            <div class='input-group mt-4 ml-4 col-xl-10'>
-                                <textarea type='textarea' name='message' class='form-control' placeholder='{{labels.EnterMsg}}' rows='2'></textarea>"
-                                <input type='submit' form='message-add' class='btn-aksiyon' value='{{labels.BtnSend}}' >
-                            </div>
-                            <div class='attach-file mt-1 ml-5'>
-                                <h6>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
-                                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
-                                    {{labels.AtchLbl}}
-                                </h6>
-                                <input type='file' name='file' >
-                            </div>
-                            
-                        </form>
-                        
-                    </div>
-                </div>
-            </div>
+                        {% if session.user.userid in unread_ids %} </b> {% endif %}  
+                    </a>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
     </div>
+</div>
+</body>
+</html>
 
 

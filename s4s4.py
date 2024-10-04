@@ -43,7 +43,7 @@ from bson import ObjectId
 
 
 
-from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG, get_label, get_error_message, authorize_app
+from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG, get_label, get_error_message, authorize_app, get_user_threads
 
 @socketio.on('join')
 def on_join(data):
@@ -155,7 +155,8 @@ def routing_form():
                                         "oid": oid,
                                         "name": object_name(otype, oid)},
                                    threads=get_threads(otype, oid),
-                                   activethr=json_dumps(active_thr),
+                                   # activethr=json_dumps(active_thr),
+                                   user_threads=get_user_threads(session["user"]),
                                    labels=get_all_labels(LANG))
 
     except Exception as e:

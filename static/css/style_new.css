@@ -27,7 +27,7 @@ div.container-routing {
     }
     
 div.container-routing h4 {
-    color: DarkSlateGrey;
+    color: DarkSlateBlue;
     text-align: center;
 }
 
@@ -38,6 +38,11 @@ div.container-routing  h6 {
 
 div.container-routing li{
     font-size: small;
+}
+
+div.container-messages {
+    max-height: 500px; 
+    overflow-y: auto;
 }
 
 div.container-routing .active-thread{

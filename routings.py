@@ -83,6 +83,13 @@ def get_threads(otype, oid):
         threads.append(rtg)
     return threads
 
+def get_user_threads(user):
+    db = client.routeX
+    return db.routings.aggregate([{"$match": {"audience.id": user["userid"]}},
+                                      {"$addFields": {"lastm": {"$last": "$messages"}}},
+                                      {"$sort": {"lastm.time": -1}}])   
+
+
 def make_new_thread(rqform, user):
     # creates an active thread object for a new thread (id="0") 
     if not rqform.get("audience"):
