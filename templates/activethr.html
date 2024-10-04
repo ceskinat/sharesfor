@@ -40,16 +40,19 @@
             });
 
         socket.on("refresh", function() {
-            let addr = "/routing_form?otype=" + $("input[name='otype']").val() + "&oid=" + 
+            let addr = "/edit_thread?otype=" + $("input[name='otype']").val() + "&oid=" + 
                         $("input[name='oid']").val() + "&thread_id=" + $("input[name='thread_id']").val();
             location.href = addr;
         });
     </script>
 
            <div class="active-thread"> 
-               <form id="form-object" action="/routing_form" method="POST">
-                    <h4>{{obj.type}}:{{obj.name}}</h4>
-                </form>
+
+                <h4>
+                    <a class="akv link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}">
+                        {{obj.type}}: {{obj.name}}
+                    </a>
+                </h4>
 
 <!-- audience selector --> 
                 <div class='aud-selector p-1 pl-3 ml-4'>

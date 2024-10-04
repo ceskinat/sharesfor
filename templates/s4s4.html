@@ -45,7 +45,7 @@
                 <ul class="list-group">
                     {% for thread in threads %}
                         <li class="list-group-item">
-                            <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}&thread_id={{thread._id}}" >
+                            <a class="akv-link" href="/edit_thread?otype={{obj.type}}&oid={{obj.oid}}&thread_id={{thread._id}}" >
                             {% if session.user.userid in thread.unread %} <b> {% endif %}
                                 {{thread.audlist}}-{{thread.messages[0].time.strftime("%d/%m/%y-%H:%M")}}:{{thread.messages[0].message[:150]}}
                             {% if session.user.userid in thread.unread %} </b> {% endif %}  
@@ -54,7 +54,7 @@
                     {% endfor %}
                 </ul>
                 <div>
-                    <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}&thread_id=0">{{labels.NewMsg}}</a>
+                    <a class="akv-link" href="/edit_thread?otype={{obj.type}}&oid={{obj.oid}}&thread_id=0">{{labels.NewMsg}}</a>
                 </div>
             </div>    
 

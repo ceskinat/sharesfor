@@ -94,7 +94,7 @@ def routing_form():
             if not session["authorized"]:
                 return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
 
-            action = "display routing" #for logging
+            # action = "display routing" #for logging
 
             # session["user"] comes from the application 
             if not session.get("user") or not session["user"].get("username"):
@@ -105,19 +105,14 @@ def routing_form():
             print("oid: ", oid)
 
             # thread_id == 0 means new (not yet stored in db) thread
-            if request.args.get("thread_id") not in ["0", None]:
-                active_thr = get_active_thread(request.args.get("thread_id"))
-                # remove user from the unread list since user views this thread 
-                remove_from_unread(active_thr["_id"], session["user"])
-            else: 
-                active_thr = make_new_thread(request.args, session["user"])
-            return render_or_json('activethr.html', 
+            return render_or_json('s4s4.html', 
                                     a_mime=request.accept_mimetypes,
                                    obj={"type": otype,
                                         "oid": oid,
                                         "name": object_name(otype, oid)},
                                    threads=get_threads(otype, oid),
-                                   activethr=json_dumps(active_thr),
+                                   # activethr=json_dumps(active_thr),
+                                   user_threads=get_user_threads(session["user"]),
                                    labels=get_all_labels(LANG))
             
         else: #POST: request from an application
@@ -161,6 +156,46 @@ def routing_form():
 
     except Exception as e:
         return error_return(e, a_mime=request.accept_mimetypes)
+
+
+@app.route('/edit_thread', methods=['GET'])
+def edit_thread():
+    try:
+        if not session["authorized"]:
+            return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+
+        action = "display routing" #for logging
+
+        # session["user"] comes from the application 
+        if not session.get("user") or not session["user"].get("username"):
+            abort(401)
+
+        otype = request.args.get("otype")
+        oid = str(request.args.get("oid"))
+        print("oid: ", oid)
+
+        # thread_id == 0 means new (not yet stored in db) thread
+        if request.args.get("thread_id") not in ["0", None]:
+            active_thr = get_active_thread(request.args.get("thread_id"))
+            # remove user from the unread list since user views this thread 
+            remove_from_unread(active_thr["_id"], session["user"])
+        else: 
+            active_thr = make_new_thread(request.args, session["user"])
+        return render_or_json('activethr.html', 
+                                a_mime=request.accept_mimetypes,
+                               obj={"type": otype,
+                                    "oid": oid,
+                                    "name": object_name(otype, oid)},
+                               # threads=get_threads(otype, oid),
+                               activethr=json_dumps(active_thr),
+                               labels=get_all_labels(LANG))
+    except Exception as e:
+        return error_return(e, a_mime=request.accept_mimetypes)
+
+
+
+
+
 
 @app.route('/add_message', methods=["POST"])
 def add_message():
