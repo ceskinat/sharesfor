@@ -1,71 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/' +  style_sheet) }}">
-<head>
-    <meta charset="UTF-8">
-</head>
-<body>
+{% extends "layout.html" %}
+{% block styles %}
+    {{super()}}
+{% endblock %}
+{% block content %}  
+
 <script type="text/javascript">
-/*    function filterFunct() {
-        var fd = new FormData();
-        fd.append("tag", $("#tag").val());
-        
-        $.ajax({
-            type: "POST",
-            url: "/obj_list",
-            data: fd,
-            processData: false,
-            contentType: false,
-            success: function(result){
-                 $("div.obj-list").html(result)
-                
-            }
-        });
-    };
-*/
-/*
-    function filterFunct(divId, inpId) {
-        var fd = new FormData();
-        fd.append("name", $("#" + inpId).val());
-        
-        $.ajax({
-            type: "POST",
-            url: "/obj_list",
-            data: fd,
-            processData: false,
-            contentType: false,
-             success: function(result){
-                 $("#" + divId).html(result)
-                
-            }
-        });
-    };
-    
-    function selectTag() {
-        $("#tagname").val($(event.target).text());
-        $("#tagid").val($(event.target).val());
-        $("#tag-submit").focus()
-            
-    };
-    
-    function selectObj() {
-        $("#tag").val($(event.target).text())
-    }
-*/
-/*    function displaySlcts() {
-        $("#aud-selectors").toggle()
-        if ($("#aud-selectors").css("display") === "none"){
-            $("#toggle-aud-slct").text("Kişi Ekle/Çıkar")
-        }
-        else {
-            $("#toggle-aud-slct").text("Kapat")
-        }
-    }
-*/    
     function displaySlcts() {
         AddRm = "{{ToggleAddRmRcpt}}"
         Close = "{{CloseAddRm}}"
@@ -91,132 +30,6 @@
 
 </script>
 
-   <div class="container">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-        var socket = io();
-        
-        socket.on('connect', function() {
-            socket.emit('join', {room: $("input[name='thread_id']").val()});
-            console.log("Joined room: " + $("input[name='thread_id']").val());
-            });
-
-        socket.on("refresh", function() {
-            let addr = "/routing_form?otype=" + $("input[name='otype']").val() + "&oid=" + 
-                        $("input[name='oid']").val() + "&thread_id=" + $("input[name='thread_id']").val();
-            location.href = addr;
-        });
-    </script>
-
-<!-- focus modal and necessary scripts -->
-
-    <script type="text/javascript">
-    
-    /*    function showOnModal( ) {
-            
-            $("#focusModal").find(".modal-body").html($(event.target).parent().next().html() );
-            $("#focusModal").find(".modal-title").html($(event.target).siblings(".section-title").html() );
-            $("#focusModal").modal(show=true);
-        };
-    */
-        function showOnModal( cnt ) {
-            if (cnt) {
-                $("#focusModal").find(".modal-body").html($(event.target).next().html());
-            
-            }
-            else{
-                $("#focusModal").find(".modal-body").html($(event.target).parent().next().html() );
-            };
-            redirectSubmit();
-            $("#focusModal").find(".modal-title").html($(event.target).siblings(".section-title").html() );
-            $("#focusModal").modal(show=true);
-        };
-    
-     
-    </script>
-    <!-- Modal -->
-    <div class="modal modal-xl fade" id="focusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-        <script type="text/javascript">
-         
-            function showRouting(otype, oid, tid, aud) {
-                if (typeof socket != "undefined") {
-                    socket.emit('leave', {room: $("input[name='thread_id']").val()});
-                    console.log("Left room: " + $("input[name='thread_id']").val());
-                }
-                $.get("localhost:5010/routing_form",
-        //                {otype:  otype, oid: oid, thread_id: tid, audience: aud, user: usr},
-                        {otype:  otype, oid: oid, thread_id: tid, audience: aud},
-                        function(data,status) {
-                            console.log(status)
-                            $("#rtgModal").find(".modal-body").html(data);
-                            $("#rtgModal").modal(show=true);
-                            redirectSubmit();
-                            if (typeof socket != "undefined") {
-                                socket.emit('join', {room: $("input[name='thread_id']").val()});
-                                console.log("Joined room: " + $("input[name='thread_id']").val());
-                            }
-        //                    initSocket();
-                        })
-            }
-            function redirectSubmit(){
-                console.log('1');
-                $(document).ready(function() {
-                    $('#focusModal form').on('submit', function(event){ 
-                        event.preventDefault();
-                        console.log("2");
-                        var postData = new FormData($(this)[0]);
-                        postData['activeonly'] = 'true';
-        /*                $.post($(this).attr('action'),
-                                $(this).serialize(),
-                                function(data,status) {
-                                    $("#focusModal").find(".modal-body").html(data);
-                                    $("#focusModal").modal(show=true);  
-                                    console.log('3');
-                                    redirectSubmit()
-                                }
-                        ); */
-                        $.ajax({
-                                url: $(this).attr('action'),
-                                type: "POST",
-                                data: postData,
-                                processData: false,
-                                contentType: false,
-                                error: function(XMLHttpRequest, textStatus, errorThrown) {
-                                            alert('Error ' + textStatus);
-                                            alert(errorThrown);
-                                            alert(XMLHttpRequest.responseText);
-                                        },
-                                success: function(data,status) {
-                                                                $("#focusModal").find(".modal-body").html(data);
-                                                                $("#focusModal").modal(show=true);  
-                                                                console.log('3');
-                                                                redirectSubmit()
-                                                            }
-        
-                                 });
-                    });
-                })
-           }  
-
-        </script>
-      <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle"></h5> 
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <div class='jumbotron collaborations bg-light p-4'>
-        {{session.user.username}}
-        <h3>{{TopTitle}}</h3>
        <div class="row">
          <div class="container container-routing mt-3  pb-4 col-xl-8">
 <!--
@@ -270,9 +83,5 @@
             </ul>
         </div>
     </div>
-    </div>
-</div>
-</body>
-</html>
 
-
+{% endblock %}

@@ -1,71 +1,9 @@
- <!DOCTYPE html>
-<html lang="en">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/' +  style_sheet) }}">
-<head>
-    <meta charset="UTF-8">
-</head>
-<body>
+{% extends "layout.html" %}
+{% block styles %}
+    {{super()}}
+{% endblock %}
+{% block content %}  
 <script type="text/javascript">
-/*    function filterFunct() {
-        var fd = new FormData();
-        fd.append("tag", $("#tag").val());
-        
-        $.ajax({
-            type: "POST",
-            url: "/obj_list",
-            data: fd,
-            processData: false,
-            contentType: false,
-            success: function(result){
-                 $("div.obj-list").html(result)
-                
-            }
-        });
-    };
-*/
-/*
-    function filterFunct(divId, inpId) {
-        var fd = new FormData();
-        fd.append("name", $("#" + inpId).val());
-        
-        $.ajax({
-            type: "POST",
-            url: "/obj_list",
-            data: fd,
-            processData: false,
-            contentType: false,
-             success: function(result){
-                 $("#" + divId).html(result)
-                
-            }
-        });
-    };
-    
-    function selectTag() {
-        $("#tagname").val($(event.target).text());
-        $("#tagid").val($(event.target).val());
-        $("#tag-submit").focus()
-            
-    };
-    
-    function selectObj() {
-        $("#tag").val($(event.target).text())
-    }
-*/
-/*    function displaySlcts() {
-        $("#aud-selectors").toggle()
-        if ($("#aud-selectors").css("display") === "none"){
-            $("#toggle-aud-slct").text("Kişi Ekle/Çıkar")
-        }
-        else {
-            $("#toggle-aud-slct").text("Kapat")
-        }
-    }
-*/    
     function displaySlcts() {
         AddRm = "{{ToggleAddRmRcpt}}"
         Close = "{{CloseAddRm}}"
@@ -108,183 +46,185 @@
         });
     </script>
 
-               <div class="active-thread"> 
- <!-- audience selector -->
+           <div class="active-thread"> 
+               <form id="form-object" action="/routing_form" method="POST">
                     <h4>{{obj.type}}:{{obj.name}}</h4>
-                    <div class='aud-selector p-1 pl-3 ml-4'>
-                        <div class="row">
-                            <div class="col-xl-2">
-                                <h6>{{labels.RcptsTitle}}</h6>
-                            </div>
-                            <div class="col-xl-10">
-                                <div class="tags-list">
-                                    {{activethr.audlist|join(", ")}}
-                                </div>
-                                <a id='toggle-aud-slct' class='akv-link text-sm' onclick='displaySlcts()'>{{labels.ToggleAddRmRcpt}}</a>
-                                <div id='aud-selectors' class='aud-selectors' style='display:none; border:1px groove;'>
-                                    <div class="m-2">
-                                        <form id="aud-add" action="/add_audience" method="POST">
-    
-                                         <!-- hidden inputs -->
-                                            <input type='hidden' name='otype' value={{obj.type}}>
-                                            <input type='hidden' name='oid' value={{obj.oid}}>
-                                            <input type='hidden' name='thread_id' value={{activethr._id}}>
+                </form>
 
-                                            <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                                            <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                                            
-                                            <div class='input-group'>
-                                                <select name='slct-aud' id='slct-aud' class='form-control text-sm'>
-                                                    {% for person in activethr.authorized_users %}
-                                                        <option value='{{person.id}}||{{person.name}}||{{person.email}}'>{{person.name}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <input type='submit' form='aud-add' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value="{{labels.AddRcpt}}"/>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="m-2">
-                                        <form id="aud-del" action="/del_audience" method="POST">
-    
-                                         <!-- hidden inputs -->
-                                            <input type='hidden' name='otype' value={{obj.type}}>
-                                            <input type='hidden' name='oid' value={{obj.oid}}>
-                                            <input type='hidden' name='thread_id' value={{activethr._id}}>
-                                            <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                                            <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                                            
-                                            <div class='input-group'>
-                                                <select name='slct-del-aud' id='slct-aud' class='form-control text-sm'>
-                                                    {% for person in activethr.audary %}
-                                                        <option value={{person.id}}>{{person.name}}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <input type='submit' form='aud-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value="{{labels.RmRcpt}}"/>
-                                            </div>
-                                        </form>
-                                    </div>
-    
-                                </div>
-                            </div>
+<!-- audience selector --> 
+                <div class='aud-selector p-1 pl-3 ml-4'>
+                    <div class="row">
+                        <div class="col-xl-2">
+                            <h6>{{labels.RcptsTitle}}</h6>
                         </div>
-                    </div>            
-                <!-- tags section -->                    
-                    <div class='tag-display aud-selector p1 pl-3 ml-4'>                
-                        <div class="row">
-                            <div class='col-xl-2'>
-                                <h6>{{labels.TagsTitle}}</h6>
+                        <div class="col-xl-10">
+                            <div class="tags-list">
+                                {{activethr.audlist|join(", ")}}
                             </div>
-                            <div class="col-xl-10">
-                                <div class="tags-list">
-                                    {{activethr.tagslist|join(", ")}}
-                                </div>
-                                <a id='toggle-tag-slct' class='akv-link text-sm' onclick='displaySlcts_tags()'>{{labels.ToggleAddRmTags}}</a>
-                                <div id='tag-selectors' class='tag-selectors' style='display:none; border:1px groove;'>
-                                    <div class='m-2'>
-                                        <form id="tag-add" action="/add_tag" method="POST">
-                                        <!-- hidden inputs -->
-                                           <input type='hidden' name='otype' value={{obj.type}}>
-                                           <input type='hidden' name='oid' value={{obj.oid}}>
-                                           <input type='hidden' name='thread_id' value={{activethr._id}}>
+                            <a id='toggle-aud-slct' class='akv-link text-sm' onclick='displaySlcts()'>{{labels.ToggleAddRmRcpt}}</a>
+                            <div id='aud-selectors' class='aud-selectors' style='display:none; border:1px groove;'>
+                                <div class="m-2">
+                                    <form id="aud-add" action="/add_audience" method="POST">
 
-                                           <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                                           <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                                            
-                                            {% set btn_content=labels.AddTag %}
-                                            {% set list_url="obj_list" %}
-                                            {% set obj_placeholder=labels.AddTagPlc %}
-                                            {% include "listtemplate.html" %}
-            
+                                     <!-- hidden inputs -->
+                                        <input type='hidden' name='otype' value={{obj.type}}>
+                                        <input type='hidden' name='oid' value={{obj.oid}}>
+                                        <input type='hidden' name='thread_id' value={{activethr._id}}>
 
-             <!--                               
-                                            <div class='input-group-append'>
-                                                <input type="text" id="tagname" name="tagname" onkeyup="filterFunct('obj-list','tagname')" placeholder="{{labels.AddTagPlc}}"  autocomplete="off"/>
-                                                <input type="hidden" id="tagid" name="tagid" />
-                                                <input type='submit' id='tag-submit' form='tag-add' class='btn-aksiyon' value='{{labels.AddTag}}'>
-                                            </div>
-                
-                                            <div id= "obj-list" class="obj-list">
-                                            </div>
-            -->
-                                        </form>
-                                    </div>
-                                    <div class='m-2'>
-                                        <form id="tag-del" action="/del_tag" method="POST">
-                                        <!-- hidden inputs -->
-                                           <input type='hidden' name='otype' value={{obj.type}}>
-                                           <input type='hidden' name='oid' value={{obj.oid}}>
-                                           <input type='hidden' name='thread_id' value={{activethr._id}}>
-                             
-                                           <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                                           <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                                            
-                                            <div class='input-group-append'>
-                                                <select name='slct-del-tag' id='slct-del-tag' class='form-control text-sm'>
-                                                    {% for tag in activethr.tagary %}
-                                                        {% if tag.tag.id != [obj.type, obj.oid] %}
-                                                            <option value='{{tag.tagidstr|safe}}'>{{tag.tag.name}}</option>
-                                                        {% endif %}
-                                                    {% endfor %}    
-                                                </select>
-                                                <input type='submit' form='tag-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value='{{labels.RmTag}}'/>
-                                            </div>
-                                        </form>
-                                    </div>
-            
-                                </div>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    
-                    
-                    <div class="messages-area p-2">
-                        <h6>{{labels.MsgsTitle}}</h6>
-                        {% if activethr.messages%}
-                            {% for msg in activethr.messages %}
-                                <div class="row">
-                                    <div class='col-xl-8 bg-msg m-2'>
-                                        <div class='text-sm'><b>{{msg.user.name}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
-                                        {{msg.message | replace("\n","<br>")}}
-                                    </div>
-                                    {% if msg.file %}
-                                        <div class='attachment-display col-xl-4 mb-3'>
-                                        <a class='btn' href='/download_file?file_id={{msg.file.gid}}&file_name={{msg.file.fname}}'>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
-                                            <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
-                                            {{msg.file.fname}}
-                                        </a>
+                                        <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
+                                        <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
+                                        
+                                        <div class='input-group'>
+                                            <select name='slct-aud' id='slct-aud' class='form-control text-sm'>
+                                                {% for person in activethr.authorized_users %}
+                                                    <option value='{{person.id}}||{{person.name}}||{{person.email}}'>{{person.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <input type='submit' form='aud-add' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value="{{labels.AddRcpt}}"/>
                                         </div>
-                                    {% endif %}
+                                    </form>
                                 </div>
-                            {% endfor %}
-                        {% endif %}
-                        <form id="message-add" enctype="multipart/form-data" action="/add_message" method="POST"  >
-                        <!-- hidden inputs -->
-                            <input type='hidden' name='otype' value={{obj.type}}>
-                            <input type='hidden' name='oid' value={{obj.oid}}>
-                            <input type='hidden' name='thread_id' value={{activethr._id}}>
+                                <div class="m-2">
+                                    <form id="aud-del" action="/del_audience" method="POST">
 
-                            <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
-                            <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
-                            
-                            <div class='input-group mt-4 ml-4 col-xl-10'>
-                                <textarea type='textarea' name='message' class='form-control' placeholder='{{labels.EnterMsg}}' rows='3'></textarea>"
-                                <input type='submit' form='message-add' class='btn-aksiyon' value='{{labels.BtnSend}}' >
+                                     <!-- hidden inputs -->
+                                        <input type='hidden' name='otype' value={{obj.type}}>
+                                        <input type='hidden' name='oid' value={{obj.oid}}>
+                                        <input type='hidden' name='thread_id' value={{activethr._id}}>
+                                        <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
+                                        <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
+                                        
+                                        <div class='input-group'>
+                                            <select name='slct-del-aud' id='slct-aud' class='form-control text-sm'>
+                                                {% for person in activethr.audary %}
+                                                    <option value={{person.id}}>{{person.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <input type='submit' form='aud-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value="{{labels.RmRcpt}}"/>
+                                        </div>
+                                    </form>
+                                </div>
+
                             </div>
-                            <div class='attach-file mt-1 ml-5'>
-                                <h6>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
-                                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
-                                    {{labels.AtchLbl}}
-                                </h6>
-                                <input type='file' name='file' >
-                            </div>
-                            
-                        </form>
-                        
+                        </div>
                     </div>
+                </div>            
+            <!-- tags section -->                    
+                <div class='tag-display aud-selector p1 pl-3 ml-4'>                
+                    <div class="row">
+                        <div class='col-xl-2'>
+                            <h6>{{labels.TagsTitle}}</h6>
+                        </div>
+                        <div class="col-xl-10">
+                            <div class="tags-list">
+                                {{activethr.tagslist|join(", ")}}
+                            </div>
+                            <a id='toggle-tag-slct' class='akv-link text-sm' onclick='displaySlcts_tags()'>{{labels.ToggleAddRmTags}}</a>
+                            <div id='tag-selectors' class='tag-selectors' style='display:none; border:1px groove;'>
+                                <div class='m-2'>
+                                    <form id="tag-add" action="/add_tag" method="POST">
+                                    <!-- hidden inputs -->
+                                       <input type='hidden' name='otype' value={{obj.type}}>
+                                       <input type='hidden' name='oid' value={{obj.oid}}>
+                                       <input type='hidden' name='thread_id' value={{activethr._id}}>
+
+                                       <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
+                                       <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
+                                        
+                                        {% set btn_content=labels.AddTag %}
+                                        {% set list_url="obj_list" %}
+                                        {% set obj_placeholder=labels.AddTagPlc %}
+                                        {% include "listtemplate.html" %}
+        
+
+         <!--                               
+                                        <div class='input-group-append'>
+                                            <input type="text" id="tagname" name="tagname" onkeyup="filterFunct('obj-list','tagname')" placeholder="{{labels.AddTagPlc}}"  autocomplete="off"/>
+                                            <input type="hidden" id="tagid" name="tagid" />
+                                            <input type='submit' id='tag-submit' form='tag-add' class='btn-aksiyon' value='{{labels.AddTag}}'>
+                                        </div>
+            
+                                        <div id= "obj-list" class="obj-list">
+                                        </div>
+        -->
+                                    </form>
+                                </div>
+                                <div class='m-2'>
+                                    <form id="tag-del" action="/del_tag" method="POST">
+                                    <!-- hidden inputs -->
+                                       <input type='hidden' name='otype' value={{obj.type}}>
+                                       <input type='hidden' name='oid' value={{obj.oid}}>
+                                       <input type='hidden' name='thread_id' value={{activethr._id}}>
+                         
+                                       <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
+                                       <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
+                                        
+                                        <div class='input-group-append'>
+                                            <select name='slct-del-tag' id='slct-del-tag' class='form-control text-sm'>
+                                                {% for tag in activethr.tagary %}
+                                                    {% if tag.tag.id != [obj.type, obj.oid] %}
+                                                        <option value='{{tag.tagidstr|safe}}'>{{tag.tag.name}}</option>
+                                                    {% endif %}
+                                                {% endfor %}    
+                                            </select>
+                                            <input type='submit' form='tag-del' class='btn btn-aksiyon form-control btn-sm btn-aud-add' value='{{labels.RmTag}}'/>
+                                        </div>
+                                    </form>
+                                </div>
+        
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
-    </div>
-</body>
-</html>
+                
+                
+                <div class="messages-area p-2">
+                    <h6>{{labels.MsgsTitle}}</h6>
+                    {% if activethr.messages%}
+                        {% for msg in activethr.messages %}
+                            <div class="row">
+                                <div class='col-xl-8 bg-msg m-2'>
+                                    <div class='text-sm'><b>{{msg.user.name}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
+                                    {{msg.message | replace("\n","<br>")}}
+                                </div>
+                                {% if msg.file %}
+                                    <div class='attachment-display col-xl-4 mb-3'>
+                                    <a class='btn' href='/download_file?file_id={{msg.file.gid}}&file_name={{msg.file.fname}}'>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
+                                        <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
+                                        {{msg.file.fname}}
+                                    </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    <form id="message-add" enctype="multipart/form-data" action="/add_message" method="POST"  >
+                    <!-- hidden inputs -->
+                        <input type='hidden' name='otype' value={{obj.type}}>
+                        <input type='hidden' name='oid' value={{obj.oid}}>
+                        <input type='hidden' name='thread_id' value={{activethr._id}}>
+
+                        <input type='hidden' name='audience' value='{{activethr.audience|safe}}'>
+                        <input type='hidden' name='tags' value='{{activethr.tags|safe}}'>
+                        
+                        <div class='input-group mt-4 ml-4 col-xl-10'>
+                            <textarea type='textarea' name='message' class='form-control' placeholder='{{labels.EnterMsg}}' rows='3'></textarea>"
+                            <input type='submit' form='message-add' class='btn-aksiyon' value='{{labels.BtnSend}}' >
+                        </div>
+                        <div class='attach-file mt-1 ml-5'>
+                            <h6>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
+                                <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
+                                {{labels.AtchLbl}}
+                            </h6>
+                            <input type='file' name='file' >
+                        </div>
+                        
+                    </form>
+                    
+                </div>
+            </div>
+</div>
+{% endblock %}
