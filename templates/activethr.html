@@ -49,7 +49,7 @@
            <div class="active-thread"> 
 
                 <h4>
-                    <a class="akv link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}">
+                    <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}">
                         {{obj.type}}: {{obj.name}}
                     </a>
                 </h4>
@@ -188,7 +188,7 @@
                         {% for msg in activethr.messages %}
                             <div class="row">
                                 <div class='col-xl-8 bg-msg m-2'>
-                                    <div class='text-sm'><b>{{msg.user.name}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
+                                    <div class='text-sm'><b>{{msg.user.username}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
                                     {{msg.message | replace("\n","<br>")}}
                                 </div>
                                 {% if msg.file %}

@@ -246,7 +246,7 @@ def add_message():
                                activethr=json_dumps(get_active_thread(thr_params["_id"])),
                                labels=get_all_labels(LANG))
         """
-        return render_or_json('avtivethr.html',
+        return render_or_json('activethr.html',
             a_mime=request.accept_mimetypes,
             obj={"type": otype,
                 "oid": oid,

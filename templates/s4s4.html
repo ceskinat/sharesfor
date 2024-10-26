@@ -64,7 +64,7 @@
             <ul class="list-group user-threads">
                 {% for thread in user_threads %}
                     <li class="list-group-item">
-                        <a class="akv-link" href="/routing_form?otype={{thread.obj_type}}&oid={{thread.obj_id}}&thread_id={{thread._id}}" >
+                        <a class="akv-link" href="/edit_thread?otype={{thread.obj_type}}&oid={{thread.obj_id}}&thread_id={{thread._id}}" >
                         {% set unread_ids = [] %}
                         {% for x in thread.unread %}
                             {% set unread_ids = unread_ids + [x["id"]] %}
