@@ -154,13 +154,14 @@ p.obj-list-item:hover {
     background-color: lightgray;
 }
 
+/*
 div.obj-list_ {
     height: 100px;
     overflow: scroll;
     border: 1px solid;
     padding: 5px;
 }
-
+*/
 
 #slct-obj {
     width: 90%;
