@@ -9,6 +9,8 @@ Created on Mon Sep 9, 2024
 @author: cem
 
 """
+from __main__ import app, request
+
 
 from config import MONGO_CONN_STRING
 
@@ -18,14 +20,16 @@ client = MongoClient(MONGO_CONN_STRING)
 
 
 
-# app = Flask(__name__)
-
-# app.register_blueprint(routeX_app)
 
 import re 
-def object_list(inp, user):
+@app.route('/interfaces/coursepage/object_list', methods=['POST'])
+def obj_lst():
     # user is a dictionary containing username, userid, email
     # returns a list of objects
+ 
+    inp = request.form.get("inp", "")
+    user = request.form.get("user", {})
+
     dbn = client.netkent
     db = client.netkent_lectures
     doc = db.s4s4rights.find_one({"userid": user["userid"]})
@@ -66,8 +70,11 @@ def object_list(inp, user):
 
     return lst
 
+@app.route('/interfaces/coursepage/object_name', methods=['POST'])
+def obj_name():
 
-def object_name(otype, oid):
+    otype = request.form["otype"]
+    oid = request.form["oid"]
     db = client.netkent_lectures
     if otype == "ders":
         doc = db.courses.find_one({"ders_kodu": oid})
@@ -92,7 +99,12 @@ def all_users():
     
     return [{"id": x["_id"], "name": x["username"], "email": x.get("email", "") } for x in db.users.find()]
 """
-def authorized_users(otype, oid):
+@app.route('/interfaces/coursepage/authorized_users', methods=['POST'])
+def auth_users():
+    
+    otype = request.form["otype"]
+    oid = request.form["oid"]
+
     db = client.netkent_lectures
     dbn = client.netkent
 

@@ -11,7 +11,7 @@ Created on Tue Feb  1 07:08:59 2022
 # configurations = json.load(f)
 
 #from sampleintfcs import object_name, all_users, authorized_users
-from cp_interfaces import object_name, authorized_users, object_list
+from interfaces import object_name, authorized_users, object_list
 from config import LANG, MONGO_CONN_STRING, EMAIL_SENDER_ACC, EMAIL_SENDER_PWD, EMAIL_INTEGRATED, MODAL_DISPLAY, S4S4_BASE
 
 from datetime import datetime
@@ -30,7 +30,14 @@ def authorize_app(client_id, api_key):
     db = client.routeX
 
     doc = db.authorized_apps.find_one({"client_id": client_id})
-    return (doc and doc.get("api_key") == api_key)
+        
+    if (doc and doc.get("api_key") == api_key):
+        return {"authorized":True,
+                "client_id": client_id,
+                "api_urls": doc.get("api_urls", {})
+                }
+    else:
+        return False
 
 
 """ multilang section """

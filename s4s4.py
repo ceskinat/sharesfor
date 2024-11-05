@@ -9,7 +9,7 @@ Created on Wed Sep 14 113:40 2022
 from flask import Flask, render_template, request, session, redirect, url_for, send_file, abort, jsonify
 
 # from sampleintfcs import object_list, object_name, authorized_users
-from cp_interfaces import object_list, object_name, authorized_users
+from interfaces import object_list, object_name, authorized_users
 # from config import session["user"]["username"]# from demopageintfcs import object_list, session["user"]["username"]
 
 from config import MODAL_DISPLAY
@@ -31,6 +31,7 @@ app.config["SECRET_KEY"] = b'_5#y2L"F4Q8z\n\xec]/'
 from flask_session import Session  # https://pythonhosted.org/Flask-Session
 Session(app)
 
+from interfaces import object_list, object_name, authorized_users
 
 def rtg_object_id(id):
     return str(id)
@@ -96,7 +97,6 @@ def routing_form():
 
             # action = "display routing" #for logging
 
-            # session["user"] comes from the application 
             if not session.get("user") or not session["user"].get("username"):
                 abort(401)
 
@@ -125,7 +125,7 @@ def routing_form():
                                "email": request.form.get("email")}
 
             session.pop("authorized", None)
-            session["authorized"] = authorize_app(request.form.get("client_id"), request.form.get("api_key"))           
+            session["authorized"] = authorize_app(request.form.get("client_id"), request.form.get("api_key"))     
             if not session["authorized"]:
                 return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
 
