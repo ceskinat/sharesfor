@@ -24,7 +24,7 @@ from __main__ import session
 import re 
 def object_list(inp, user):
     result = post(session["authorized"]["api_urls"]["object_list"], 
-                    data={"inp": inp, "user": user})
+                    data={"inp": inp, "user": user["userid"]})
     return result.json()
 
 def object_name(otype, oid):
