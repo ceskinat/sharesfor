@@ -8,7 +8,47 @@
 <head>
     <meta charset="UTF-8">
 </head>
+
 <body>
+    <!-- Modal -->
+      <div class="modal fade" id="myMsgsModal" role="dialog" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">{{labels.MyMsgsTitle}}</h5> 
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+        <!-- My Messages area -->
+            <div class="container-routing container-messages mt-3">
+                <ul class="list-group user-threads">
+                    {% for thread in user_threads %}
+                        <li class="list-group-item">
+                            <a class="akv-link" href="/edit_thread?otype={{thread.obj_type}}&oid={{thread.obj_id}}&thread_id={{thread._id}}" >
+                            {% set unread_ids = [] %}
+                            {% for x in thread.unread %}
+                                {% set unread_ids = unread_ids + [x["id"]] %}
+                            {% endfor %}
+                            {% if session.user.userid in unread_ids %} <b> {% endif %}
+
+                            
+                            <p class="m-1">{{thread.obj_type}}: {{thread.obj_name}}</p>
+                            <p class="m-1">{{thread.lastm.user.username}}-{{thread.lastm.time.strftime("%d/%m/%y-%H:%M")}}:</p>
+                            <p class="m-1 ml-3">{{thread.lastm.message[:150]}}</p>
+
+                            {% if session.user.userid in unread_ids %} </b> {% endif %}  
+                        </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+
    <div class="container">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script type="text/javascript">
@@ -52,7 +92,7 @@
     
      
     </script>
-    <!-- Modal -->
+
     <div class="modal modal-xl fade" id="focusModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
         <script type="text/javascript">
          
@@ -117,23 +157,19 @@
            }  
 
         </script>
-      <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle"></h5> 
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-          </div>
-        </div>
-      </div>
     </div>
 
 
     <div class='jumbotron collaborations bg-light p-4'>
         {{session.user.username}}
+        <h4>
+        <button class="btn akv-link" data-toggle="modal" data-target="#myMsgsModal" title="{{labels.MyMsgsTitleDesc}}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+          </svg>
+        </button> 
+        </h4> 
+
         <h3>{{TopTitle}}</h3>
 
         {%block content %}{% endblock %}

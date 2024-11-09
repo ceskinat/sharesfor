@@ -30,8 +30,9 @@
 
 </script>
 
+
        <div class="row">
-         <div class="container container-routing mt-3  pb-4 col-xl-8">
+         <div class="container container-routing mt-3  pb-4">
 <!--
             <button type="button" class="btn-close close text-right" onclick="window.open('', '_self', ''); window.close();">x</button>
 -->
@@ -58,30 +59,6 @@
                 </div>
             </div>    
 
-        <!-- My Messages area -->
-        <div class="col-xl-4 container-routing container-messages mt-3">
-            <h4>{{labels.MyMsgsTitle}}</h4>
-            <ul class="list-group user-threads">
-                {% for thread in user_threads %}
-                    <li class="list-group-item">
-                        <a class="akv-link" href="/edit_thread?otype={{thread.obj_type}}&oid={{thread.obj_id}}&thread_id={{thread._id}}" >
-                        {% set unread_ids = [] %}
-                        {% for x in thread.unread %}
-                            {% set unread_ids = unread_ids + [x["id"]] %}
-                        {% endfor %}
-                        {% if session.user.userid in unread_ids %} <b> {% endif %}
-
-                        
-                        <p class="m-1">{{thread.obj_type}}: {{thread.obj_name}}</p>
-                        <p class="m-1">{{thread.lastm.user.username}}-{{thread.lastm.time.strftime("%d/%m/%y-%H:%M")}}:</p>
-                        <p class="m-1 ml-3">{{thread.lastm.message[:150]}}</p>
-
-                        {% if session.user.userid in unread_ids %} </b> {% endif %}  
-                    </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
     </div>
 
 {% endblock %}
