@@ -32,6 +32,7 @@ Created on Tue Aug 29 15:25:26 2023
                 $.each(result, function(){
 //                    $("#dropdown").append("<option value=" + this.id +">" + this.name + "</option>")
                     dropdown.append("<option value='" + JSON.stringify(this.id) +"'>" + this.name + "</option>")
+//                    dropdown.append("<option value=" + JSON.stringify(this.id) +">" + this.name + "</option>")
                 });                  
                 
             }

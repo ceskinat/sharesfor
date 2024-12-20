@@ -50,7 +50,7 @@ div.container-routing .active-thread{
 }
 
 div.container-activethr {
-    max-width: 750px;
+#    max-width: 750px;
 }
 
 form.form-inline input, button {
