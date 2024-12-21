@@ -103,7 +103,7 @@ div.active-thread {
     margin: 2px 20px 2px 20px;
     }
 
-div.active-thread h4 {
+div.active-thread h4,h5{
     color: DarkSlateGrey;
     text-align: center;
 }
@@ -229,4 +229,9 @@ div.error-display {
     text-size: 200%;
     background-color: lightpink;   
     width: 50% auto; 
+}
+
+div.thread-detail-title {
+    text-align: center;
+    color: steelblue;
 }

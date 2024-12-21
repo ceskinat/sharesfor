@@ -44,14 +44,26 @@
             location.href = addr;
         });
     </script>
+            <div class="thread-detail-title">
+                <h4>{{labels.ThrDetail}}</h4>
+            </div>
 
            <div class="active-thread row"> 
-                <div class="col-xl-5">
+                <div class="col-xl-12">
                 <h4>
                     <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}">
                         {{obj.type}}: {{obj.name}}
                     </a>
                 </h4>
+                <h5>{{labels.ThreadTitle}}: 
+                    {% if activethr.messages %}
+                        {{activethr.messages[0].message[:150]}}
+                    {% else %}
+                        {{labels.NewThread}}
+                    {% endif %}
+                </h5>
+                </div>
+                <div class="col-xl-5">
 
 <!-- audience selector --> 
                 <div class='aud-selector p-1 pl-3 ml-4'>
@@ -182,13 +194,6 @@
                 </div>                
                 <div class="col-xl-7">
                 <div class="messages-area p-2">
-                    <h5>{{labels.ThreadTitle}}: 
-                        {% if activethr.messages %}
-                            {{activethr.messages[0].message[:150]}}
-                        {% else %}
-                            {{labels.NewThread}}
-                        {% endif %}
-                    </h5>
 
                     <h6>{{labels.MsgsTitle}}</h6>
                     {% if activethr.messages%}
