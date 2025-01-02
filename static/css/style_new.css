@@ -99,7 +99,7 @@ div.active-thread {
 #    border-color: DarkSlateBlue;
     padding: 5px;
 #    background-color: GhostWhite;
-    background-color: aliceblue;
+#    background-color: aliceblue;
     margin: 2px 20px 2px 20px;
     }
 
@@ -131,12 +131,12 @@ div.active-thread h4,h5{
 }
 
 div.aud-selector {
-#    background-color: SlateGrey;
-    background-color:LightBlue;
+#    background-color:whitesmoke;
     padding: 10;
-    border: 1px groove;
+#    border: 1px groove;
     border-color: LightSlateGrey;
     margin: 10px;
+    max-width: 70%;
 }
 
 div.messages-area {
@@ -144,6 +144,8 @@ div.messages-area {
     padding: 10;
 #    border: 1px groove;
     border-color: steelblue;
+    background-color: aliceblue;
+ 
 }
 
 p.obj-list-item {
@@ -180,7 +182,7 @@ div.section-acc {
 }
 
 div.tags-list {
-    background-color: GhostWhite;
+#    background-color: GhostWhite;
     font-size: small;
 }
 

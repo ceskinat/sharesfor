@@ -44,11 +44,12 @@
             location.href = addr;
         });
     </script>
+    <!--
             <div class="thread-detail-title">
                 <h4>{{labels.ThrDetail}}</h4>
             </div>
-
-           <div class="active-thread row"> 
+    -->
+           <div class="active-thread"> 
                 <div class="col-xl-12">
                 <h4>
                     <a class="akv-link" href="/routing_form?otype={{obj.type}}&oid={{obj.oid}}">
@@ -65,12 +66,12 @@
                 </div>
 
 <!-- audience selector --> 
-                <div class='aud-selector p-1 pl-3 ml-4 col-xl-10'>
-                    <div class="row">
-                        <div class="col-xl-2">
+                <div class='aud-selector p-1 pl-3 ml-4'>
+                    <div class="">
+                        <div class="col-xl-2_">
                             <h6>{{labels.RcptsTitle}}</h6>
                         </div>
-                        <div class="col-xl-10">
+                        <div class="col-xl-10_">
                             <div class="tags-list">
                                 {{activethr.audlist|join(", ")}}
                             </div>
@@ -121,7 +122,8 @@
                             </div>
                         </div>
                     </div>
-                </div>            
+                </div>  
+                <div class="row">          
                 <div class="col-xl-7">
                 <div class="messages-area p-2">
 
@@ -173,15 +175,17 @@
 
                 </div>
             <!-- tags section -->                    
-                <div class='tag-display  p1 pl-3 ml-4 col-xl-4'>                
+                <div class='tag-display  p1 pl-3 ml-4 mt-4 col-xl-4'>                
                     <div class="row">
                         <div class='col-xl-12'>
                             <h6>{{labels.TagsTitle}}</h6>
                         </div>
                         <div class="col-xl-10">
+<!--
                             <div class="tags-list">
                                 {{activethr.tagslist|join(", ")}}
                             </div>
+ -->
                             {% for tag in activethr.tagary %}
                                 <div>
                                 <a class="akv-link" href="/routing_form?otype={{tag.tag.id[0]}}&oid={{tag.tag.id[1]}}">
@@ -246,6 +250,7 @@
                         </div>
                     </div>
                     
+                </div>
                 </div>
             </div>
 </div>
