@@ -12,7 +12,7 @@ Created on Tue Feb  1 07:08:59 2022
 
 #from sampleintfcs import object_name, all_users, authorized_users
 from interfaces import object_name, authorized_users, object_list
-from config import LANG, MONGO_CONN_STRING, EMAIL_SENDER_ACC, EMAIL_SENDER_PWD, EMAIL_INTEGRATED, MODAL_DISPLAY, S4S4_BASE
+from config import LANG, MONGO_CONN_STRING, EMAIL_SENDER_ACC, EMAIL_SENDER_PWD, EMAIL_INTEGRATED,  S4S4_BASE
 
 from datetime import datetime
 

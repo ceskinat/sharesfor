@@ -12,7 +12,7 @@ from flask import Flask, render_template, request, session, redirect, url_for, s
 from interfaces import object_list, object_name, authorized_users
 # from config import session["user"]["username"]# from demopageintfcs import object_list, session["user"]["username"]
 
-from config import MODAL_DISPLAY
+from config import SECRET_KEY
 
 from flask_socketio import SocketIO, join_room, leave_room, emit
 
@@ -22,7 +22,7 @@ import json
 app = Flask(__name__)
 
 app.config['SESSION_TYPE'] = 'filesystem'
-app.config["SECRET_KEY"] = b'_5#y2L"F4Q8z\n\xec]/'
+app.config["SECRET_KEY"] = SECRET_KEY
 
 # from flask_cors import CORS
 # cors = CORS(app,resources={r"/*":{"origins":"*"}})
