@@ -27,7 +27,7 @@ import json
 
 """ authorization """
 def authorize_app(client_id, api_key):
-    db = client.routeX
+    db = client.sharesfor
 
     doc = db.authorized_apps.find_one({"client_id": client_id})
         
@@ -44,7 +44,7 @@ def authorize_app(client_id, api_key):
 LABELS_MSGS = {} # read once from database; then serve from memory
 def xlate_msg(msg_id, lang):
     if not LABELS_MSGS:
-        db = client.routeX
+        db = client.sharesfor
         for lbl in db.labels.find():
             LABELS_MSGS[lbl["label"]] = lbl["output"]
 
@@ -55,19 +55,19 @@ def xlate_msg(msg_id, lang):
 
 def get_all_labels(lang):
 # read all labels at once
-    db = client.routeX
+    db = client.sharesfor
     return {x["label"]: x["output"][lang] for x in db.labels.find()}
 
 def get_label(label, lang):
 # read a specific label
-    db = client.routeX
+    db = client.sharesfor
     lbl = db.labels.find_one({"label": label})
     if lbl:
         return lbl["output"].get(lang)
 
 def get_error_message(exc_ID, lang):
 # get the exception message in the designated language
-    db = client.routeX
+    db = client.sharesfor
     msg = db.exceptions.find_one({"exc_ID": exc_ID,
                                   "lang": lang })
     if not msg:  # exception not defined
@@ -78,7 +78,7 @@ def get_error_message(exc_ID, lang):
         
 def get_threads(otype, oid):
 # returns the message threads belonging to a certain object
-    db = client.routeX
+    db = client.sharesfor
     threads = []
     # for rtg in db.routings.find({"obj_type": otype,
     #                              "obj_id": oid}):
@@ -91,7 +91,7 @@ def get_threads(otype, oid):
     return threads
 
 def get_user_threads(user):
-    db = client.routeX
+    db = client.sharesfor
     return db.routings.aggregate([{"$match": {"audience.id": user["userid"]}},
                                       {"$addFields": {"lastm": {"$last": "$messages"}}},
                                       {"$sort": {"lastm.time": -1}}])   
@@ -134,7 +134,7 @@ def json_dumps(thread):
 
 def get_active_thread(thread_id):
 # retrieves a thread from db and creates fileds required to display the thread 
-    db = client.routeX
+    db = client.sharesfor
     thread = db.routings.find_one({"_id": ObjectId(thread_id)})
     
     # lists added for simpler display
@@ -184,7 +184,7 @@ def file_response(file_id, file_name):
 
 def create_rt_thread(otype, oid, thr_params, message, rq_files):
 #creates a new message thread (in DB) and returns the thread id (or exception code)
-    db = client.routeX
+    db = client.sharesfor
     unread = [x["id"] for x in thr_params["audience"]]
     if thr_params["user"]["userid"] in unread:
         unread.remove(thr_params["user"]["userid"])
@@ -231,7 +231,7 @@ def add_rt_message(th, user, message, rq_files, source):
     # add to existing thread
     # source can be either sharesfor or email replies
 
-    db = client.routeX
+    db = client.sharesfor
     try: 
         # th = db.routings.find_one({"_id": ObjectId(thr_params["_id"])})
         usr = { "id": user["userid"],
@@ -276,7 +276,7 @@ def add_rt_message(th, user, message, rq_files, source):
         
 def remove_from_unread(thread_id, user):
 # remove the useer from unread list
-    db = client.routeX
+    db = client.sharesfor
     db.routings.update_one({"_id": thread_id},
                            {"$pull": {"unread": user["userid"]}})
 
@@ -296,7 +296,7 @@ def add_audience_rtg(thr, aud):
         thr["audience"].append(aud)
     if thr["_id"] != "0":  #new thread
 
-        db = client.routeX
+        db = client.sharesfor
         doc = db.routings.find_one({"_id": thr["_id"]})
         if doc: 
             old_aud = doc.get("audience", [])
@@ -331,7 +331,7 @@ def del_audience_rtg(thread, aud):
     thread["audlist"] = [x["name"] for x in new_aud]
     if thread["_id"] != 0:
         try:
-            db = client.routeX
+            db = client.sharesfor
             res = db.routings.update_one({"_id": ObjectId(thread["_id"])},
                                          {"$pull": {"audience": {"id": aud},
                                                     "unread": {"id": aud}}})
@@ -359,7 +359,7 @@ def add_tag_rtg(thr_params, added_tagstr):
 
         thr_params["thread_id"] = ObjectId(thr_params["_id"])
         try:
-            db = client.routeX
+            db = client.sharesfor
             res = db.routings.update_one({"_id": ObjectId(thr_params["thread_id"])},
                                    {"$push": {"tags": json.loads(added_tagstr)}})        
             if res.matched_count == 0: 
@@ -379,7 +379,7 @@ def del_tag_rtg(thr_params, del_tagstr):
     if thr_params["_id"] != "0":
         thr_params["thread_id"] = ObjectId(thr_params["_id"])
         try:
-            db = client.routeX
+            db = client.sharesfor
             res = db.routings.update_one({"_id": ObjectId(thr_params["thread_id"])},
                                          {"$pull": {"tags": json.loads(del_tagstr)}})        
             if res.matched_count == 0: 
