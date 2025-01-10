@@ -8,11 +8,9 @@ Created on Wed Sep 14 113:40 2022
 
 from flask import Flask, render_template, request, session, redirect, url_for, send_file, abort, jsonify
 
-# from sampleintfcs import object_list, object_name, authorized_users
 from interfaces import object_list, object_name, authorized_users
-# from config import session["user"]["username"]# from demopageintfcs import object_list, session["user"]["username"]
 
-from config import SECRET_KEY
+from config import SECRET_KEY, FLASK_PORT
 
 from flask_socketio import SocketIO, join_room, leave_room, emit
 
@@ -549,4 +547,4 @@ def json_test():
 
 if __name__ == '__main__':
     # app.run(debug = True, host = "0.0.0.0", port=5010)
-    socketio.run(app, debug = True, host = "0.0.0.0", port=5010)   
+    socketio.run(app, debug = True, host = "0.0.0.0", port=FLASK_PORT)   
