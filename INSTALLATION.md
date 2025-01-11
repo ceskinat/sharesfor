@@ -84,6 +84,11 @@ For a remote MongoDB server, ensure the MONGO_URI in your .env file points to th
 ```
 mongorestore --archive=initial.mongoarc
 ```
+if your MongoDB is password protected:
+```
+mongorestore --archive=initial.mongoarc -u <user> -p <password>
+```
+
 
 7.Run the Application
 
@@ -145,17 +150,3 @@ sudo systemctl restart nginx
 
 ---
 
-Additional Notes
-
-- If you encounter any issues during installation, refer to the troubleshooting section below.
-- To run tests, see the TESTING.md file (if available).
----
-
-Troubleshooting
-
-- Error: "Command not found: flask"
-	- Ensure the virtual environment is activated and Flask is installed.
-- MongoDB connection issues
-	- Verify that MongoDB is running and accessible at the MONGO_URI specified in the .env file.
----
-You're all set! If you have any questions or need further assistance, feel free to open an issue on the repository.
