@@ -1,8 +1,8 @@
-Installation Guide
+# Installation Guide
 
 This guide will help you set up and run sharesfor on your local machine.
----
 
+---
 Prerequisites
 
 Before you begin, ensure you have the following installed on your system:

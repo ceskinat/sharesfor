@@ -117,6 +117,7 @@ def routing_form():
 
 
             # session["user"] comes from the application 
+            print(request.form)
             session.pop("user", None)
             session["user"] = {"userid": request.form.get("userid"),
                                "username": request.form.get("username"),
@@ -124,8 +125,10 @@ def routing_form():
 
             session.pop("authorized", None)
             session["authorized"] = authorize_app(request.form.get("client_id"), request.form.get("api_key"))     
+            print("authorized app")
             if not session["authorized"]:
                 return error_return(get_error_message("AppNotAuth", LANG), a_mime=request.accept_mimetypes)
+            print("authorized app")
 
             # print("AppId: ", request.form["client_id"], ", API key:", request.form["api_key"] )
             otype = request.form.get("otype")
@@ -133,6 +136,9 @@ def routing_form():
             # from an application call the new thread is displayed; 
             # the existing threads are displayed by GET calls
             active_thr = make_new_thread(request.form, session["user"])
+            print("Thread made")
+
+
             """
             return render_template('s4s4.html', 
                                    obj={"type": otype,
