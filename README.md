@@ -13,12 +13,12 @@ which corresponds to user information (userid, username, email) and object infor
 
 See integration.md for integrating your application with sharesfor and installation.md for sharesfor installation instructions.
 
----
-Technology Stack
-Backend: Python Flask
-Database: MongoDB
-Real-Time Communication: Socket.IO
----
+
+### Technology Stack
+-- Backend: Python Flask
+-- Database: MongoDB
+-- Real-Time Communication: Socket.IO
+
 
 ### Contributing
 Contributions are welcome! To contribute:
