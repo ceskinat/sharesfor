@@ -131,12 +131,18 @@ div.active-thread h4,h5{
 }
 
 div.aud-selector {
-#    background-color:whitesmoke;
+    background-color:white;
     padding: 10;
-#    border: 1px groove;
+    # border: 1px groove;
     border-color: LightSlateGrey;
     margin: 10px;
     max-width: 70%;
+    color: darkslategray;
+}
+
+div.tag-display {
+    background-color: white;
+    color: darkslategray;
 }
 
 div.messages-area {
