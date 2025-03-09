@@ -146,11 +146,11 @@ div.tag-display {
 }
 
 div.messages-area {
-#    background-color: LightBlue;
+    background-color: LightSteelBlue;
     padding: 10;
 #    border: 1px groove;
     border-color: steelblue;
-    background-color: aliceblue;
+    # background-color: aliceblue;
  
 }
 
@@ -205,7 +205,7 @@ div.attachment-display a{
 #    margin-left: auto;
 #    display: flex;
 #   justify-content: flex-end;
-    background-color: GhostWhite;
+    background-color: lightgray;
 }
 
 div.attach-file {

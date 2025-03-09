@@ -131,12 +131,12 @@
                     {% if activethr.messages%}
                         {% for msg in activethr.messages %}
                             <div class="row">
-                                <div class='col-xl-8 bg-msg m-2'>
+                                <div class='col-xl-9 bg-msg m-2'>
                                     <div class='text-sm'><b>{{msg.user.username}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
                                     {{msg.message | replace("\n","<br>")}}
                                 </div>
                                 {% if msg.file %}
-                                    <div class='attachment-display col-xl-4 mb-3'>
+                                    <div class='attachment-display  mb-3 ml-4'>
                                     <a class='btn' href='/download_file?file_id={{msg.file.gid}}&file_name={{msg.file.fname}}'>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
                                         <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
@@ -175,7 +175,7 @@
 
                 </div>
             <!-- tags section -->                    
-                <div class='tag-display  p1 pl-3 col-xl-4'>                
+                <div class='tag-display  p1 pl-3 col-xl-3'>                
                     <div class="row">
                         <div class='col-xl-12'>
                             <h6>{{labels.TagsTitle}}</h6>
@@ -187,7 +187,7 @@
                             </div>
  -->
                             {% for tag in activethr.tagary %}
-                                <div>
+                                <div class="tags-list">
                                 <a class="akv-link" href="/routing_form?otype={{tag.tag.id[0]}}&oid={{tag.tag.id[1]}}">
                                     {{tag.tag.name}}
                                 </a>
