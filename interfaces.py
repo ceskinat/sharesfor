@@ -19,7 +19,8 @@ from requests import post
 
 # app.register_blueprint(routeX_app)
 
-from __main__ import session
+# from __main__ import session
+from flask import session
 
 import re 
 def object_list(inp, user):
