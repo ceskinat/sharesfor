@@ -5,6 +5,11 @@ Created on Wed Sep 14 113:40 2022
 
 @author: cem
 """
+# monkey patching for gevent with gunicorn
+from gevent import monkey
+monkey.patch_all()
+
+
 
 from flask import Flask, render_template, request, session, redirect, url_for, send_file, abort, jsonify
 
