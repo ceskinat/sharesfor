@@ -13,8 +13,6 @@ monkey.patch_all()
 
 from flask import Flask, render_template, request, session, redirect, url_for, send_file, abort, jsonify
 
-from interfaces import object_list, object_name, authorized_users
-
 from config import SECRET_KEY, FLASK_PORT
 
 from flask_socketio import SocketIO, join_room, leave_room, emit

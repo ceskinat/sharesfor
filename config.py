@@ -13,7 +13,7 @@ COonfiguration Parameters and Constants
 LANG = "en"
 MONGO_CONN_STRING = None #localhost
 
-FLASK_PORT = 5010
+FLASK_PORT = 5015
 
 
 SECRET_KEY = b'_5#y2L"F4Q8z\n\xec]/'
