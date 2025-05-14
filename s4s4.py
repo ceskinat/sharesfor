@@ -45,7 +45,7 @@ from bson import ObjectId
 
 
 
-from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG, get_label, get_error_message, authorize_app, get_user_threads
+from routings import create_rt_thread, add_rt_message, remove_from_unread, add_audience_rtg, del_audience_rtg, get_all_labels, get_threads, get_active_thread, aud_str2ary, make_new_thread, json_dumps, LANG, get_label, get_error_message, authorize_app, get_user_threads, admin_auth, delete_message_from_thread
 
 @socketio.on('join')
 def on_join(data):
@@ -195,7 +195,8 @@ def edit_thread():
                                     "name": object_name(otype, oid)},
                                # threads=get_threads(otype, oid),
                                activethr=json_dumps(active_thr),
-                               user_threads=get_user_threads(session["user"]),
+                               admin_right=admin_auth(active_thr, session["user"]),
+                               # user_threads=get_user_threads(session["user"]),
                                labels=get_all_labels(LANG))
     except Exception as e:
         return error_return(e, a_mime=request.accept_mimetypes)
@@ -254,13 +255,15 @@ def add_message():
                                activethr=json_dumps(get_active_thread(thr_params["_id"])),
                                labels=get_all_labels(LANG))
         """
+        activethr = get_active_thread(thr_params["_id"])
         return render_or_json('activethr.html',
             a_mime=request.accept_mimetypes,
             obj={"type": otype,
                 "oid": oid,
                 "name": object_name(otype, oid)},
             threads=get_threads(otype, oid),
-            activethr=json_dumps(get_active_thread(thr_params["_id"])),
+            activethr=json_dumps(active_thr),
+            admin_right=admin_auth(active_thr, session["user"]),
             labels=get_all_labels(LANG))
 
     except Exception as e:
@@ -273,6 +276,29 @@ def add_message():
 """ audience format as on the DB
     [{"id": <user_id>, "name": <user_name}]
 """
+
+@app.route('/delete_message', methods=["POST"])
+def delete_message():
+    try:
+        mod_index = int(request.form["index"]) -1
+        delete_message_from_thread(request.form["thread_id"], mod_index)
+
+        active_thr = get_active_thread(request.form["thread_id"])
+        obj_type = active_thr["obj_type"]
+        obj_id = active_thr["obj_id"]
+        obj_name = active_thr["obj_name"]
+        return render_or_json('activethr.html',
+            a_mime=request.accept_mimetypes,
+            obj={"type": obj_type,
+                "oid": obj_id,
+                "name": obj_name},
+            threads=get_threads(obj_type, obj_id),
+            activethr=json_dumps(active_thr),
+            admin_right=admin_auth(active_thr, session["user"]),
+            labels=get_all_labels(LANG))
+
+    except Exception as e:
+        return error_return(e, a_mime=request.accept_mimetypes)
 
 
 @app.route('/add_audience', methods = [ "POST"])

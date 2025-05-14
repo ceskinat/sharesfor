@@ -145,6 +145,13 @@ def get_active_thread(thread_id):
     thread["authorized_users"] = authorized_users(thread["obj_type"], thread["obj_id"])
     return thread
 
+def admin_auth(thread, user):
+    # check if the session user has edit right on the object
+    for auth_user in thread["authorized_users"]:
+        if auth_user["id"] == user["userid"] and auth_user["admin"]:
+            return True
+    return False
+
 
 """ attachment handling """
 from gridfs import GridFS
@@ -319,6 +326,23 @@ def add_audience_rtg(thr, aud):
         except: 
                 thr["exc_ID"] = "AudAddFail"
     return thr
+
+def delete_message_from_thread(thread_id, index):
+    try:
+        db = client.sharesfor
+        thr = db.routings.find_one({"_id": ObjectId(thread_id)})
+        if not thr:
+            thr["exc_ID"] = "DelMsgFail"
+            return thr
+
+        thr["messages"].pop(index)
+        db.routings.update_one({"_id": ObjectId(thread_id)},
+                                {"$set": {"messages": thr["messages"]}})
+    except:
+        thr["exc_ID"] = "DelMsgFail"
+    return thr
+
+
 
 
 def del_audience_rtg(thread, aud):

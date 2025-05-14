@@ -135,6 +135,21 @@
                                     <div class='text-sm'><b>{{msg.user.username}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
                                     {{msg.message | replace("\n","<br>")}}
                                 </div>
+                                {% if admin_right %}
+                                <div class="col-xl-2">
+                                    <form action="/delete_message" method="POST">
+                                        <input type="hidden" name="index" value={{loop.index}}>
+                                        <input type="hidden" name="thread_id" value={{activethr._id}}> 
+                                        <button class_"btn-aksiyon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                                              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                                            </svg>
+                                        </button>
+
+                                    </form>
+                                </div>
+                                {% endif %}
                                 {% if msg.file %}
                                     <div class='attachment-display  mb-3 ml-4'>
                                     <a class='btn' href='/download_file?file_id={{msg.file.gid}}&file_name={{msg.file.fname}}'>
