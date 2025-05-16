@@ -28,6 +28,13 @@
     }
 
 </script>
+
+<script>
+function confirmDelete() {
+    return confirm("Are you sure you want to delete this item?");
+}
+</script>
+
    <div class="container container-activethr">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     <script type="text/javascript">
@@ -137,7 +144,7 @@
                                 </div>
                                 {% if admin_right %}
                                 <div class="col-xl-2">
-                                    <form action="/delete_message" method="POST">
+                                    <form action="/delete_message" onsubmit="return confirmDelete();" method="POST">
                                         <input type="hidden" name="index" value={{loop.index}}>
                                         <input type="hidden" name="thread_id" value={{activethr._id}}> 
                                         <button class_"btn-aksiyon">
