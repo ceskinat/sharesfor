@@ -179,6 +179,13 @@ def handle_attachment(rq_files):
     if gid:
         return {"gid": gid, "fname": filename}
     
+def delete_from_grid(gid):
+    # delete entry from gridFS if attachment exists 
+    db = client.grid
+    fs = GridFS(db)
+    fs.delete(gid)
+
+
 from flask import Response
 def file_response(file_id, file_name):
 # prepares a response as attachment from GridFS filesystem
@@ -187,6 +194,10 @@ def file_response(file_id, file_name):
     r = Response(f, direct_passthrough=True, mimetype='application/octet-stream')
     r.headers.set('Content-Disposition', 'attachment', filename=file_name)
     return r
+
+
+
+
 
 
 def create_rt_thread(otype, oid, thr_params, message, rq_files):
@@ -335,12 +346,17 @@ def delete_message_from_thread(thread_id, index):
             thr["exc_ID"] = "DelMsgFail"
             return thr
 
+        if thr["messages"][index].get("file"):
+            # attached file present; delete form gridFS as well
+            delete_from_grid(thr["messages"][index]["file"]["gid"])
         thr["messages"].pop(index)
         db.routings.update_one({"_id": ObjectId(thread_id)},
                                 {"$set": {"messages": thr["messages"]}})
     except:
         thr["exc_ID"] = "DelMsgFail"
     return thr
+
+
 
 
 

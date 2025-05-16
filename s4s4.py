@@ -255,7 +255,7 @@ def add_message():
                                activethr=json_dumps(get_active_thread(thr_params["_id"])),
                                labels=get_all_labels(LANG))
         """
-        activethr = get_active_thread(thr_params["_id"])
+        active_thr = get_active_thread(thr_params["_id"])
         return render_or_json('activethr.html',
             a_mime=request.accept_mimetypes,
             obj={"type": otype,
@@ -280,7 +280,7 @@ def add_message():
 @app.route('/delete_message', methods=["POST"])
 def delete_message():
     try:
-        mod_index = int(request.form["index"]) -1
+        mod_index = int(request.form["index"]) - 1
         delete_message_from_thread(request.form["thread_id"], mod_index)
 
         active_thr = get_active_thread(request.form["thread_id"])
