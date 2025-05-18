@@ -148,7 +148,7 @@ def get_active_thread(thread_id):
 def admin_auth(thread, user):
     # check if the session user has edit right on the object
     for auth_user in thread["authorized_users"]:
-        if auth_user["id"] == user["userid"] and auth_user["admin"]:
+        if auth_user["id"] == user["userid"] and auth_user.get("admin"):
             return True
     return False
 
