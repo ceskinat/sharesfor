@@ -1,1 +1,1 @@
-mongodump --db=sharesfor --excludeCollection=sharesfor.routings --archive=initials.mongoarc
+mongodump --db=sharesfor --excludeCollection=authorized_apps --excludeCollection=routings --archive=initials.mongoarc
