@@ -31,7 +31,7 @@
 </script>
 
 
-       <div class="row">
+       <div>
          <div class="container container-routing mt-3  pb-4">
 <!--
             <button type="button" class="btn-close close text-right" onclick="window.open('', '_self', ''); window.close();">x</button>
@@ -43,17 +43,34 @@
                 <div class="exc-display">exception</div>
             {% endif %}
                 <h5>{{labels.RtgsTitle}}</h5>
-                <ul class="list-group">
+<!--                <ul class="list-group"> -->
+                    <div class="row">
                     {% for thread in threads %}
-                        <li class="list-group-item">
-                            <a class="akv-link" href="/edit_thread?otype={{obj.type}}&oid={{obj.oid}}&thread_id={{thread._id}}" >
+<!--                        <li class="list-group-item">  -->
+                        <div class="col-xl-5 thread-summ m-4" onclick="window.location.href='/edit_thread?otype={{obj.type}}&oid={{obj.oid}}&thread_id={{thread._id}}';">
+
+<!--                            <a class="akv-link"  href="/edit_thread?otype={{obj.type}}&oid={{obj.oid}}&thread_id={{thread._id}}" > -->
                             {% if session.user.userid in thread.unread %} <b> {% endif %}
-                                {{thread.audlist}}-{{thread.messages[0].time.strftime("%d/%m/%y-%H:%M")}}:{{thread.messages[0].message[:150]}}
+                                <p class="m-1 text-sm">{{thread.messages[0].time.strftime("%d/%m/%y-%H:%M")}}</p>
+                                <p class="m-1 text-sm">{{labels.RcptsTitle}}: {{thread.audlist}}</p>
+                                <div>
+                                    {{thread.messages[0].message[:250]}}
+                                    {% if thread.messages[0].file %}
+                                        <div class='attachment-display  mb-3 ml-4'>
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
+                                            <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 1 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0V3z"/></svg>
+                                            {{thread.messages[0].file.fname}}
+                                        </div>
+                                    {% endif %}
+                                </div>
                             {% if session.user.userid in thread.unread %} </b> {% endif %}  
-                            </a>                          
-                        </li>
+<!--                            </a>                          
+                        </li>  -->
+                    </div>
                     {% endfor %}
-                </ul>
+<!--                </ul> -->
+                </div>
                 <div>
                     <a class="akv-link" href="/edit_thread?otype={{obj.type}}&oid={{obj.oid}}&thread_id=0">{{labels.NewMsg}}</a>
                 </div>
