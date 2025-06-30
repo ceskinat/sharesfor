@@ -139,7 +139,7 @@ function confirmDelete() {
                         {% for msg in activethr.messages %}
                             <div class="row">
                                 <div class='col-xl-9 bg-msg m-2'>
-                                    <div class='text-sm'><b>{{msg.user.username}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
+                                    <div class='text-sm'><b>{{msg.user.name}}</b> - {{ msg.time.strftime("%d/%m/%y-%H:%M")}}</div>
                                     {{msg.message | replace("\n","<br>")}}
                                 </div>
                                 {% if admin_right %}
