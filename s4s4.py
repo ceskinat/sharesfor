@@ -196,7 +196,7 @@ def edit_thread():
                                # threads=get_threads(otype, oid),
                                activethr=json_dumps(active_thr),
                                admin_right=admin_auth(active_thr, session["user"]),
-                               # user_threads=get_user_threads(session["user"]),
+                               user_threads=get_user_threads(session["user"]),
                                labels=get_all_labels(LANG))
     except Exception as e:
         return error_return(e, a_mime=request.accept_mimetypes)
