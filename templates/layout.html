@@ -35,7 +35,7 @@
 
                             
                             <p class="m-1">{{thread.obj_type}}: {{thread.obj_name}}</p>
-                            <p class="m-1">{{thread.lastm.user.username}}-{{thread.lastm.time.strftime("%d/%m/%y-%H:%M")}}:</p>
+                            <p class="m-1">{{thread.lastm.user.name}}-{{thread.lastm.time.strftime("%d/%m/%y-%H:%M")}}:</p>
                             <p class="m-1 ml-3">{{thread.lastm.message[:150]}}</p>
 
                             {% if session.user.userid in unread_ids %} </b> {% endif %}  
