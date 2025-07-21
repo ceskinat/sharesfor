@@ -21,7 +21,8 @@ Clone the repository to your local machine using Git or download it as a ZIP fil
 ```
 git clone https://github.com/ceskinat/sharesfor.git
 cd sharesfor
-
+# Initialize and pull submodules
+git submodule update --init --recursive
 ```
 
 2. Set Up a Virtual Environment
@@ -54,6 +55,10 @@ pip install -r requirements.txt
 
 4. Configure the Application
 
+We recommend making the configurations on a separate branch and rebase main branch after each pull
+```
+git checkout -b config
+```
 The configurations are made via config.py
 ```
 LANG = "tr"
@@ -149,4 +154,14 @@ sudo systemctl restart nginx
 ```
 
 ---
+8. Updating the Application
+
+When pulling newer versions, update the submodules as well and keep your local configurations
+```
+git checkout main
+git pull origin main
+git submodule update --init --recursive
+git checkout config
+git rebase main
+```
 
