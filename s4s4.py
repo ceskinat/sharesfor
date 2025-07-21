@@ -21,6 +21,8 @@ from flask_socketio import SocketIO, join_room, leave_room, emit
 import json
 
 app = Flask(__name__)
+app.jinja_loader.searchpath.append('shared/combobox/templates')
+
 
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config["SECRET_KEY"] = SECRET_KEY
