@@ -392,6 +392,7 @@ def del_audience_rtg(thread, aud):
 
 def add_tag_rtg(thr_params, added_tagstr):
 # add a tag (object) to an existing or new (id="0") thread 
+    print(added_tagstr)
     ats = json.loads(added_tagstr)
     if ats not in thr_params["tags"]:
         thr_params["tags"].append(ats)
