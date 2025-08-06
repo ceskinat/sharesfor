@@ -256,3 +256,6 @@ div.thread-summ {
 div.thread-summ:hover {
     background-color: lightsteelblue;
 }
+.thread-title-text {
+    color: maroon;
+}

@@ -53,7 +53,7 @@
                             {% if session.user.userid in thread.unread %} <b> {% endif %}
                                 <p class="m-1 text-sm">{{thread.messages[0].time.strftime("%d/%m/%y-%H:%M")}}</p>
                                 <p class="m-1 text-sm">{{labels.RcptsTitle}}: {{thread.audlist}}</p>
-                                <div>
+                                <div class="thread-title-text">
                                     {{thread.messages[0].message[:250]}}
                                     {% if thread.messages[0].file %}
                                         <div class='attachment-display  mb-3 ml-4'>
@@ -64,6 +64,7 @@
                                         </div>
                                     {% endif %}
                                 </div>
+                                <p class="m-1 text-sm">{{labels.TagsTitle}}:{{thread.tagslist}}</p>
                             {% if session.user.userid in thread.unread %} </b> {% endif %}  
 <!--                            </a>                          
                         </li>  -->
