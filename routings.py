@@ -143,6 +143,10 @@ def get_active_thread(thread_id):
     
     # thread["authorized_users"] = [x["username"] for x in all_users()]
     thread["authorized_users"] = authorized_users(thread["obj_type"], thread["obj_id"])
+
+    #sort the messages in FIFO order
+    thread["messages"].sort(key=lambda e: e["time"])
+
     return thread
 
 def admin_auth(thread, user):
@@ -404,8 +408,10 @@ def add_tag_rtg(thr_params, added_tagstr):
         thr_params["thread_id"] = ObjectId(thr_params["_id"])
         try:
             db = client.sharesfor
+#            res = db.routings.update_one({"_id": ObjectId(thr_params["thread_id"])},
+#                                   {"$push": {"tags": json.loads(added_tagstr)}})        
             res = db.routings.update_one({"_id": ObjectId(thr_params["thread_id"])},
-                                   {"$push": {"tags": json.loads(added_tagstr)}})        
+                                   {"$set": {"tags": thr_params["tags"]}})        
             if res.matched_count == 0: 
                 thr_params["exc_ID"] = "TagAddFail"
         except:

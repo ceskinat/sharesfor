@@ -82,7 +82,7 @@ function confirmDelete() {
                             <div class="tags-list">
                                 {{activethr.audlist|join(", ")}}
                             </div>
-                            <a id='toggle-aud-slct' class='akv-link text-sm' onclick='displaySlcts()'>{{labels.ToggleAddRmRcpt}}</a>
+                            <button id='toggle-aud-slct' class='btn-aksiyon text-sm' onclick='displaySlcts()'>{{labels.ToggleAddRmRcpt}}</button>
                             <div id='aud-selectors' class='aud-selectors' style='display:none; border:1px groove;'>
                                 <div class="m-2">
                                     <form id="aud-add" action="/add_audience" method="POST">
@@ -215,7 +215,7 @@ function confirmDelete() {
                                 </a>
                                 </div>
                             {% endfor %}    
-                            <a id='toggle-tag-slct' class='akv-link text-sm' onclick='displaySlcts_tags()'>{{labels.ToggleAddRmTags}}</a>
+                            <button id='toggle-tag-slct' class='btn-aksiyon text-sm' onclick='displaySlcts_tags()'>{{labels.ToggleAddRmTags}}</button>
                             <div id='tag-selectors' class='tag-selectors' style='display:none; border:1px groove;'>
                                 <div class='m-2'>
                                     <form id="tag-add" action="/add_tag" method="POST">
